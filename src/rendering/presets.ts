@@ -1,0 +1,331 @@
+/**
+ * Visualizer Presets Engine
+ * Batch Music Visualizer Engine
+ */
+
+import { VisualPreset, VisualPresetName, AspectRatioMode, Dimensions, SafeAreaInsets } from './types.js';
+
+export const VISUAL_PRESETS: Record<VisualPresetName, VisualPreset> = {
+  DEFAULT: {
+    name: 'DEFAULT',
+    description: 'Clean modern studio visualizer with balanced cyan/indigo aesthetic',
+    colors: {
+      primary: '#00f0ff',
+      secondary: '#7000ff',
+      accent: '#38bdf8',
+      background: '#090d16',
+      textPrimary: '#ffffff',
+      textSecondary: '#94a3b8',
+      glow: '#00f0ff80',
+      particleColors: ['#00f0ff', '#38bdf8', '#818cf8', '#ffffff'],
+    },
+    visualizerMode: 'BARS',
+    particleType: 'dust',
+    particleCount: 65,
+    particleSpeedMultiplier: 1.0,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.12,
+      panX: 0.05,
+      panY: -0.05,
+      speed: 1.0,
+    },
+    glowIntensity: 18,
+    barCount: 48,
+    barWidth: 8,
+    barGap: 4,
+    bassReactivity: 1.2,
+    fontFamily: 'Inter, sans-serif',
+    overlayOpacity: 0.45,
+    vignetteStrength: 0.6,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.22,
+  },
+
+  'TRAP-PIANO': {
+    name: 'TRAP-PIANO',
+    description: 'Dark royal violet and gold palette tailored for piano trap beats',
+    colors: {
+      primary: '#fbbf24',
+      secondary: '#9333ea',
+      accent: '#f59e0b',
+      background: '#0f051d',
+      textPrimary: '#ffffff',
+      textSecondary: '#c084fc',
+      glow: '#fbbf2490',
+      particleColors: ['#fbbf24', '#f59e0b', '#c084fc', '#e9d5ff'],
+    },
+    visualizerMode: 'CIRCULAR',
+    particleType: 'sparks',
+    particleCount: 90,
+    particleSpeedMultiplier: 1.4,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.02,
+      zoomEnd: 1.18,
+      panX: -0.08,
+      panY: 0.06,
+      speed: 1.3,
+    },
+    glowIntensity: 25,
+    barCount: 64,
+    barWidth: 6,
+    barGap: 3,
+    bassReactivity: 1.6,
+    fontFamily: 'Montserrat, sans-serif',
+    overlayOpacity: 0.55,
+    vignetteStrength: 0.75,
+    mirrorSpectrum: false,
+    circularRadiusRatio: 0.25,
+  },
+
+  'DARK-CINEMATIC': {
+    name: 'DARK-CINEMATIC',
+    description: 'Atmospheric cinematic theme with amber ember particles and smooth wave lines',
+    colors: {
+      primary: '#f97316',
+      secondary: '#dc2626',
+      accent: '#fb923c',
+      background: '#050507',
+      textPrimary: '#f8fafc',
+      textSecondary: '#94a3b8',
+      glow: '#ea580c80',
+      particleColors: ['#f97316', '#ef4444', '#f59e0b', '#78350f'],
+    },
+    visualizerMode: 'WAVE_LINES',
+    particleType: 'fireflies',
+    particleCount: 50,
+    particleSpeedMultiplier: 0.7,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.08,
+      panX: 0.03,
+      panY: 0.03,
+      speed: 0.6,
+    },
+    glowIntensity: 22,
+    barCount: 60,
+    bassReactivity: 1.0,
+    fontFamily: 'Cinzel, Georgia, serif',
+    overlayOpacity: 0.6,
+    vignetteStrength: 0.85,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.2,
+  },
+
+  AMAPIANO: {
+    name: 'AMAPIANO',
+    description: 'Vibrant golden hour energy with sunburst colors and pulsing circular ring',
+    colors: {
+      primary: '#facc15',
+      secondary: '#f97316',
+      accent: '#ec4899',
+      background: '#180a02',
+      textPrimary: '#ffffff',
+      textSecondary: '#fdba74',
+      glow: '#facc1580',
+      particleColors: ['#facc15', '#f97316', '#fbbf24', '#f43f5e'],
+    },
+    visualizerMode: 'CIRCULAR',
+    particleType: 'fireflies',
+    particleCount: 75,
+    particleSpeedMultiplier: 1.1,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.15,
+      panX: 0.06,
+      panY: -0.06,
+      speed: 1.1,
+    },
+    glowIntensity: 20,
+    barCount: 56,
+    barWidth: 7,
+    barGap: 3,
+    bassReactivity: 1.4,
+    fontFamily: 'Poppins, sans-serif',
+    overlayOpacity: 0.5,
+    vignetteStrength: 0.65,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.24,
+  },
+
+  TRAP: {
+    name: 'TRAP',
+    description: 'High voltage neon cyan & hot magenta aggressive trap aesthetic',
+    colors: {
+      primary: '#06b6d4',
+      secondary: '#ec4899',
+      accent: '#22d3ee',
+      background: '#040712',
+      textPrimary: '#ffffff',
+      textSecondary: '#a5f3fc',
+      glow: '#ec4899a0',
+      particleColors: ['#06b6d4', '#ec4899', '#38bdf8', '#f472b6'],
+    },
+    visualizerMode: 'DUAL_BARS',
+    particleType: 'sparks',
+    particleCount: 110,
+    particleSpeedMultiplier: 1.6,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.05,
+      zoomEnd: 1.25,
+      panX: -0.1,
+      panY: 0.08,
+      speed: 1.5,
+    },
+    glowIntensity: 28,
+    barCount: 50,
+    barWidth: 9,
+    barGap: 3,
+    bassReactivity: 1.8,
+    fontFamily: 'Teko, Impact, sans-serif',
+    overlayOpacity: 0.5,
+    vignetteStrength: 0.7,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.22,
+  },
+
+  'DEEP-HOUSE': {
+    name: 'DEEP-HOUSE',
+    description: 'Deep oceanic teal and electric blue smooth house groove visualizer',
+    colors: {
+      primary: '#14b8a6',
+      secondary: '#3b82f6',
+      accent: '#06b6d4',
+      background: '#02131e',
+      textPrimary: '#f0fdf4',
+      textSecondary: '#99f6e4',
+      glow: '#14b8a680',
+      particleColors: ['#14b8a6', '#3b82f6', '#2dd4bf', '#60a5fa'],
+    },
+    visualizerMode: 'WAVE_LINES',
+    particleType: 'glow',
+    particleCount: 45,
+    particleSpeedMultiplier: 0.85,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.1,
+      panX: 0.04,
+      panY: -0.04,
+      speed: 0.8,
+    },
+    glowIntensity: 20,
+    barCount: 64,
+    bassReactivity: 1.15,
+    fontFamily: 'Outfit, sans-serif',
+    overlayOpacity: 0.4,
+    vignetteStrength: 0.55,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.22,
+  },
+
+  MINIMAL: {
+    name: 'MINIMAL',
+    description: 'Ultra-clean, crisp monochromatic dark slate visualizer with precise thin bars',
+    colors: {
+      primary: '#e2e8f0',
+      secondary: '#64748b',
+      accent: '#ffffff',
+      background: '#090a0f',
+      textPrimary: '#ffffff',
+      textSecondary: '#64748b',
+      glow: '#ffffff40',
+      particleColors: ['#cbd5e1', '#94a3b8', '#ffffff'],
+    },
+    visualizerMode: 'BARS',
+    particleType: 'dust',
+    particleCount: 30,
+    particleSpeedMultiplier: 0.6,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.05,
+      panX: 0.02,
+      panY: 0.02,
+      speed: 0.5,
+    },
+    glowIntensity: 10,
+    barCount: 64,
+    barWidth: 4,
+    barGap: 4,
+    bassReactivity: 0.9,
+    fontFamily: 'Inter, system-ui, sans-serif',
+    overlayOpacity: 0.35,
+    vignetteStrength: 0.5,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.2,
+  },
+
+  ABSTRACT: {
+    name: 'ABSTRACT',
+    description: 'Ethereal color-shifting palette with dynamic smoke trails and radial blooms',
+    colors: {
+      primary: '#a855f7',
+      secondary: '#10b981',
+      accent: '#f43f5e',
+      background: '#090314',
+      textPrimary: '#ffffff',
+      textSecondary: '#d8b4fe',
+      glow: '#a855f780',
+      particleColors: ['#a855f7', '#10b981', '#f43f5e', '#38bdf8'],
+    },
+    visualizerMode: 'CIRCULAR',
+    particleType: 'smoke',
+    particleCount: 40,
+    particleSpeedMultiplier: 0.9,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.16,
+      panX: -0.06,
+      panY: -0.06,
+      speed: 0.9,
+    },
+    glowIntensity: 24,
+    barCount: 72,
+    barWidth: 5,
+    barGap: 3,
+    bassReactivity: 1.35,
+    fontFamily: 'Space Grotesk, sans-serif',
+    overlayOpacity: 0.5,
+    vignetteStrength: 0.65,
+    mirrorSpectrum: false,
+    circularRadiusRatio: 0.26,
+  },
+};
+
+export function getDimensions(aspectRatio: AspectRatioMode): Dimensions {
+  if (aspectRatio === 'PORTRAIT' || aspectRatio === '9:16') {
+    return { width: 1080, height: 1920 };
+  }
+  return { width: 1920, height: 1080 };
+}
+
+export function getSafeAreaInsets(aspectRatio: AspectRatioMode): SafeAreaInsets {
+  if (aspectRatio === 'PORTRAIT' || aspectRatio === '9:16') {
+    return {
+      top: 140, // TikTok / Shorts top header safe zone
+      bottom: 300, // Bottom caption & sound title safe zone
+      left: 60,
+      right: 120, // Right action buttons (like/comment/share)
+    };
+  }
+  return {
+    top: 60,
+    bottom: 80,
+    left: 80,
+    right: 80,
+  };
+}
+
+export function getPreset(name?: VisualPresetName): VisualPreset {
+  if (name && VISUAL_PRESETS[name]) {
+    return VISUAL_PRESETS[name];
+  }
+  return VISUAL_PRESETS.DEFAULT;
+}

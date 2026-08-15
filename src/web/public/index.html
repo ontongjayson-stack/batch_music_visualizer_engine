@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Music Visualizer & Social Content Engine</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #151c2c;
+      --accent: #fbbf24;
+      --accent-glow: rgba(251, 191, 36, 0.25);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #222d42;
+      --success: #10b981;
+      --rendering: #3b82f6;
+      --failed: #ef4444;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      margin: 0 0 10px 0;
+      color: var(--accent);
+      text-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #090d16;
+      color: #fff;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-group label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #000;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      box-shadow: 0 0 20px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge.DONE { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .badge.RENDERING { background: rgba(59, 130, 246, 0.2); color: var(--rendering); }
+    .badge.QUEUED, .badge.PENDING { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
+    .badge.FAILED { background: rgba(239, 68, 68, 0.2); color: var(--failed); }
+
+    .progress-bar-bg {
+      width: 100px;
+      height: 8px;
+      background: #090d16;
+      border-radius: 4px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎵 BATCH MUSIC VISUALIZER ENGINE</h1>
+      <p>Automated Album-to-Social Video Production Pipeline</p>
+    </header>
+
+    <div class="card">
+      <div class="form-group">
+        <label for="albumFolder">1. Select Music Album Folder Path</label>
+        <input type="text" id="albumFolder" placeholder="e.g. D:/MyMusic/TrapPianoAlbum">
+      </div>
+
+      <div class="form-group">
+        <label for="presetSelect">2. Select Visual Preset Style</label>
+        <select id="presetSelect">
+          <option value="TRAP-PIANO" selected>TRAP-PIANO (Amapiano + Trap Fusion, Night Fire, Dance Silhouette)</option>
+          <option value="DEFAULT">DEFAULT (Cyan Studio Equalizer)</option>
+          <option value="DARK-CINEMATIC">DARK-CINEMATIC (Ember Particles & Wave Lines)</option>
+          <option value="AMAPIANO">AMAPIANO (Warm Sun & Geometric Accents)</option>
+          <option value="TRAP">TRAP (Neon Cyber & Heavy Bass Pulse)</option>
+          <option value="DEEP-HOUSE">DEEP-HOUSE (Oceanic Deep Pulsing Visuals)</option>
+          <option value="MINIMAL">MINIMAL (Clean Studio Audio Waveform)</option>
+          <option value="ABSTRACT">ABSTRACT (Dynamic Spectrum Art)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>3. Select Output Social Platforms</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" value="youtube" checked> YouTube (16:9 1920x1080)</label>
+          <label><input type="checkbox" value="tiktok" checked> TikTok (9:16 1080x1920)</label>
+          <label><input type="checkbox" value="instagram" checked> Instagram Reels (9:16)</label>
+          <label><input type="checkbox" value="shorts" checked> YouTube Shorts (9:16)</label>
+        </div>
+      </div>
+
+      <button class="btn" id="generateBtn" onclick="startGeneration()">GENERATE BATCH VIDEOS</button>
+    </div>
+
+    <div class="card">
+      <h2>📋 Production Queue Status</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Track #</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody id="queueTableBody">
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted);">No active render queue. Select an album folder and click GENERATE.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let pollInterval = null;
+
+    async function startGeneration() {
+      const albumPath = document.getElementById('albumFolder').value.trim();
+      if (!albumPath) {
+        alert('Please enter an album folder path');
+        return;
+      }
+
+      const preset = document.getElementById('presetSelect').value;
+      const checkedPlatforms = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
+
+      const btn = document.getElementById('generateBtn');
+      btn.innerText = 'INITIALIZING QUEUE...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            albumPath,
+            preset,
+            platforms: checkedPlatforms,
+            outputDir: './output'
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          btn.innerText = 'RENDERING IN PROGRESS...';
+          startPollingStatus();
+        } else {
+          alert('Error: ' + data.error);
+          btn.innerText = 'GENERATE BATCH VIDEOS';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Failed to connect to web engine server: ' + err.message);
+        btn.innerText = 'GENERATE BATCH VIDEOS';
+        btn.disabled = false;
+      }
+    }
+
+    function startPollingStatus() {
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(fetchStatus, 1500);
+      fetchStatus();
+    }
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        const tbody = document.getElementById('queueTableBody');
+
+        if (!data.jobs || data.jobs.length === 0) return;
+
+        tbody.innerHTML = '';
+        data.jobs.forEach(job => {
+          const statusClass = job.status === 'DONE' ? 'DONE' : (job.status === 'RENDERING' || job.status === 'ANALYZING' ? 'RENDERING' : (job.status === 'FAILED' ? 'FAILED' : 'QUEUED'));
+          const progress = job.progress || 0;
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${job.track.trackNumber || '-'}</td>
+            <td><strong>${job.track.title}</strong><br><small style="color:var(--text-muted);">${job.track.artist}</small></td>
+            <td><span class="badge ${statusClass}">${job.status}</span></td>
+            <td>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: ${progress}%"></div>
+              </div>
+              <span style="margin-left: 8px; font-size: 0.85rem;">${progress}%</span>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Polling status error:', err);
+      }
+    }
+  </script>
+</body>
+</html>

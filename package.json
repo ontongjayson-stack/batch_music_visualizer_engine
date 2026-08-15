@@ -1,0 +1,45 @@
+{
+  "name": "music-visualizer-engine",
+  "version": "1.0.0",
+  "description": "Batch Music Visualizer & Social Content Production Engine",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsx src/web/server.ts",
+    "web": "tsx src/web/server.ts",
+    "generate": "tsx src/cli/index.ts generate-album",
+    "cli": "tsx src/cli/index.ts",
+    "build": "tsc",
+    "test": "tsx src/tests/end-to-end-album.test.ts"
+  },
+  "keywords": [
+    "music-visualizer",
+    "ffmpeg",
+    "canvas",
+    "remotion",
+    "trap-piano"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.66",
+    "@types/express": "^5.0.6",
+    "@types/fs-extra": "^11.0.4",
+    "canvas": "npm:@napi-rs/canvas@^1.0.6",
+    "commander": "^15.0.0",
+    "express": "^5.2.1",
+    "fft.js": "^4.0.4",
+    "fs-extra": "^11.4.0",
+    "music-metadata": "^11.14.0",
+    "vitest": "^4.1.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  },
+  "optionalDependencies": {
+    "@napi-rs/canvas-win32-x64-msvc": "^0.1.66"
+  }
+}
