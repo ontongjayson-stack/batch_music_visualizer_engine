@@ -17,6 +17,7 @@ export type ParticleType = 'sparks' | 'dust' | 'fireflies' | 'smoke' | 'glow';
 export type VisualPresetName =
   | 'DEFAULT'
   | 'CINEMATIC-ALBUM'
+  | 'PRO-CINEMATIC-SPEAKER'
   | 'TRAP-PIANO'
   | 'DARK-CINEMATIC'
   | 'AMAPIANO'
@@ -78,6 +79,7 @@ export interface VisualConfig {
   logoPath?: string;
   backgroundPath?: string;
   customColors?: Partial<VisualColorPalette>;
+  showCenterArt?: boolean;
 }
 
 export interface AudioAnimationFrame {
@@ -85,6 +87,8 @@ export interface AudioAnimationFrame {
   timestamp: number; // in seconds
   volume: number; // 0 to 1 overall amplitude
   bass: number; // 0 to 1 low-end energy (20-250Hz)
+  subBass?: number; // 0 to 1 sub-bass energy (20-120Hz)
+  kickTransient?: number; // 0 to 1 kick punch transient derivative
   mids: number; // 0 to 1 mid-range energy (250-4000Hz)
   treble: number; // 0 to 1 high-end energy (4000-20000Hz)
   spectrum: number[]; // normalized frequencies (0 to 1)
@@ -113,6 +117,7 @@ export interface RenderOptions {
   artistName?: string;
   albumName?: string;
   watermarkText?: string;
+  showCenterArt?: boolean;
   fps?: number;
   onProgress?: (progress: number, currentFrame: number, totalFrames: number) => void;
 }

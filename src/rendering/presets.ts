@@ -6,6 +6,43 @@
 import { VisualPreset, VisualPresetName, AspectRatioMode, Dimensions, SafeAreaInsets } from './types.js';
 
 export const VISUAL_PRESETS: Record<VisualPresetName, VisualPreset> = {
+  'PRO-CINEMATIC-SPEAKER': {
+    name: 'PRO-CINEMATIC-SPEAKER',
+    description: 'Pro audio-reactive dual subwoofer system with center hero artwork option, acoustic cone excursion physics, and reactive surrounding aura',
+    colors: {
+      primary: '#00f0ff',
+      secondary: '#7000ff',
+      accent: '#fbbf24',
+      background: '#04060a',
+      textPrimary: '#ffffff',
+      textSecondary: '#94a3b8',
+      glow: '#00f0ff70',
+      particleColors: ['#00f0ff', '#fbbf24', '#818cf8', '#ffffff'],
+    },
+    visualizerMode: 'CIRCULAR',
+    particleType: 'dust',
+    particleCount: 35,
+    particleSpeedMultiplier: 0.5,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.06,
+      panX: 0.02,
+      panY: -0.02,
+      speed: 0.6,
+    },
+    glowIntensity: 24,
+    barCount: 64,
+    barWidth: 5,
+    barGap: 3,
+    bassReactivity: 1.5,
+    fontFamily: 'Inter, sans-serif',
+    overlayOpacity: 0.55,
+    vignetteStrength: 0.75,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.22,
+  },
+
   'CINEMATIC-ALBUM': {
     name: 'CINEMATIC-ALBUM',
     description: 'Ultra-polished cinematic album artwork visualizer with atmospheric blur, breathing hero art, subtle radial spectrum, and ambient lighting',

@@ -27,6 +27,7 @@ import { drawSpectrum } from './components/spectrum.js';
 import { drawProgressBar } from './components/progress.js';
 import { drawTextLayout } from './components/textLayout.js';
 import { drawCinematicAlbumComposition } from './components/cinematicAlbum.js';
+import { drawProCinematicSpeakerComposition } from './components/proCinematicSpeaker.js';
 
 /**
  * Gets exact duration of an audio file in seconds using ffprobe/ffmpeg.
@@ -198,7 +199,23 @@ export async function renderVideo(options: RenderOptions): Promise<RenderResult>
       // Get current audio frame parameters
       const audioData = getFrameAudioData(audioAnalysis, frameIndex, fps);
 
-      if (preset.name === 'CINEMATIC-ALBUM') {
+      if (preset.name === 'PRO-CINEMATIC-SPEAKER') {
+        // Render 6-Layer Pro Cinematic Speaker Visual Composition
+        drawProCinematicSpeakerComposition({
+          ctx,
+          dimensions,
+          preset,
+          frameIndex,
+          totalFrames,
+          audioData,
+          coverImage: bgImage,
+          trackTitle,
+          artistName,
+          albumName,
+          safeArea,
+          showCenterArt: options.showCenterArt !== false,
+        });
+      } else if (preset.name === 'CINEMATIC-ALBUM') {
         // Render 6-Layer Cinematic Album V1 Visual Composition
         drawCinematicAlbumComposition({
           ctx,

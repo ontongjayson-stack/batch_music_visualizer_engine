@@ -53,11 +53,16 @@ export function generateSyntheticAudioAnalysis(
       spectrum[b] = Math.min(1, Math.max(0.02, val));
     }
 
+    const subBass = Math.min(1, Math.max(0.08, beatPulse * 0.85 + wave1 * 0.15));
+    const kickTransient = beatPulse > 0.65 ? Math.min(1, beatPulse * 1.2) : 0.05;
+
     frames.push({
       frameIndex: i,
       timestamp,
       volume,
       bass,
+      subBass,
+      kickTransient,
       mids,
       treble,
       spectrum,
@@ -84,13 +89,29 @@ export function getFrameAudioData(
 ): AudioAnimationFrame {
   if (analysis && analysis.frames && analysis.frames.length > 0) {
     const clampedIndex = Math.min(Math.max(0, frameIndex), analysis.frames.length - 1);
-    return analysis.frames[clampedIndex];
+    const frame = analysis.frames[clampedIndex];
+    const prevFrame = clampedIndex > 0 ? analysis.frames[clampedIndex - 1] : frame;
+
+    const bassVal = frame.bass || 0;
+    const prevBass = prevFrame.bass || 0;
+    const bassOnset = Math.max(0, bassVal - prevBass);
+
+    const subBass = frame.subBass !== undefined ? frame.subBass : Math.min(1, bassVal * 1.15);
+    const kickTransient = frame.kickTransient !== undefined ? frame.kickTransient : Math.min(1, bassOnset * 3.0 + (frame.isBeat ? 0.7 : 0.05));
+
+    return {
+      ...frame,
+      subBass,
+      kickTransient,
+    };
   }
 
   // Fallback synthetic frame generation
   const timestamp = frameIndex / fps;
   const beatPulse = Math.pow(Math.max(0, 1 - ((frameIndex % (fps / 2)) / (fps / 2)) * 2), 2);
   const bass = 0.3 + beatPulse * 0.5;
+  const subBass = Math.min(1, bass * 1.2);
+  const kickTransient = beatPulse > 0.6 ? 0.9 : 0.05;
   const mids = 0.4 + Math.sin(timestamp * 2) * 0.2;
   const treble = 0.25 + Math.cos(timestamp * 5) * 0.15;
   const volume = (bass + mids + treble) / 3;
@@ -106,6 +127,8 @@ export function getFrameAudioData(
     timestamp,
     volume,
     bass,
+    subBass,
+    kickTransient,
     mids,
     treble,
     spectrum,
