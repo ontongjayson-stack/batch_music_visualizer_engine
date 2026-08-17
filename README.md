@@ -2,6 +2,8 @@
 
 An automated, high-throughput music video production pipeline that converts an entire music album directory into publishable visualizer videos for **YouTube (16:9 1920x1080)**, **TikTok (9:16 1080x1920)**, **Instagram Reels (9:16 1080x1920)**, and **YouTube Shorts (9:16 1080x1920)**, along with platform social metadata manifests and high-resolution thumbnail image cards.
 
+![Batch Music Visualizer Engine & Review Studio](batch_music_visualizer_engine_preview.png)
+
 ---
 
 ## ⚡ Quick Start
