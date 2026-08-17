@@ -9,7 +9,8 @@ import fs from 'fs-extra';
 import { exec } from 'child_process';
 import { scanAlbum } from '../pipeline/scanner';
 import { JobQueueManager } from '../pipeline/queue';
-import { RenderOptions } from '../types';
+import { RenderOptions, SocialPlatform } from '../types';
+import { SocialPublisher, OAuthToken, PublishRequest } from '../publishing/social-publisher';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let activeQueueManager: JobQueueManager | null = null;
 let currentAlbumStats: any = null;
+
+export const socialPublisher = new SocialPublisher({
+  stateFilePath: path.resolve('./output/.publishing-queue-state.json'),
+  tokensFilePath: path.resolve('./output/.social-tokens.json')
+});
 
 // API: Scan Album Folder
 app.post('/api/scan', async (req, res) => {
@@ -95,6 +101,160 @@ app.get('/api/status', (req, res) => {
     albumStats: currentAlbumStats,
   });
 });
+
+// ============================================================================
+// PUBLISHING ENGINE API ENDPOINTS
+// ============================================================================
+
+// API: Enqueue & Trigger Direct Video Publishing across YouTube, TikTok, Instagram
+app.post('/api/publishing/publish', async (req: express.Request, res: express.Response) => {
+  try {
+    const { filePath, platforms, title, description, hashtags, tags, privacy, coverImagePath, scheduledAt, tokens, async: isAsync } = req.body;
+
+    if (!filePath || !title) {
+      return res.status(400).json({ error: 'filePath and title are required fields' });
+    }
+
+    // Register optional tokens passed in request
+    if (tokens && typeof tokens === 'object') {
+      for (const [platformKey, tokenObj] of Object.entries(tokens)) {
+        socialPublisher.setToken(platformKey, tokenObj as OAuthToken);
+      }
+    }
+
+    const targetPlatforms: SocialPlatform[] = Array.isArray(platforms) && platforms.length > 0 
+      ? platforms 
+      : ['youtube', 'tiktok', 'instagram'];
+
+    const requests: PublishRequest[] = targetPlatforms.map((platform) => ({
+      filePath,
+      platform,
+      title,
+      description: description || '',
+      hashtags: hashtags || [],
+      tags: tags || [],
+      privacy: privacy || 'public',
+      coverImagePath,
+      scheduledAt
+    }));
+
+    const jobs = socialPublisher.enqueue(requests);
+
+    if (isAsync !== false) {
+      // Asynchronously trigger queue processing
+      socialPublisher.processQueue().catch((err) => {
+        console.error('[Publishing Queue Async Error]:', err);
+      });
+
+      return res.json({
+        success: true,
+        message: 'Publishing jobs enqueued and processing started',
+        count: jobs.length,
+        jobs
+      });
+    } else {
+      const updatedJobs = await socialPublisher.processQueue();
+      return res.json({
+        success: true,
+        message: 'Publishing completed',
+        count: updatedJobs.length,
+        jobs: updatedJobs
+      });
+    }
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to publish video' });
+  }
+});
+
+// API: Get Live Publishing Queue & Job Status
+app.get('/api/publishing/status', (req: express.Request, res: express.Response) => {
+  try {
+    const { jobId, status, platform } = req.query;
+
+    if (jobId && typeof jobId === 'string') {
+      const job = socialPublisher.getJob(jobId);
+      if (!job) {
+        return res.status(404).json({ error: `Publish job not found: ${jobId}` });
+      }
+      return res.json({ success: true, job });
+    }
+
+    const summary = socialPublisher.getQueueStatus();
+    let filteredJobs = summary.jobs;
+
+    if (status && typeof status === 'string') {
+      filteredJobs = filteredJobs.filter(j => j.status === status.toUpperCase());
+    }
+    if (platform && typeof platform === 'string') {
+      filteredJobs = filteredJobs.filter(j => j.platform === platform.toLowerCase());
+    }
+
+    const tokensStatus: Record<string, boolean> = {
+      youtube: socialPublisher.hasValidToken('youtube'),
+      tiktok: socialPublisher.hasValidToken('tiktok'),
+      instagram: socialPublisher.hasValidToken('instagram')
+    };
+
+    return res.json({
+      success: true,
+      queue: {
+        total: filteredJobs.length,
+        pending: filteredJobs.filter(j => j.status === 'PENDING').length,
+        uploading: filteredJobs.filter(j => j.status === 'UPLOADING').length,
+        published: filteredJobs.filter(j => j.status === 'PUBLISHED').length,
+        failed: filteredJobs.filter(j => j.status === 'FAILED').length
+      },
+      jobs: filteredJobs,
+      tokensStatus
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to fetch publishing status' });
+  }
+});
+
+// API: Retry Failed Publishing Job(s)
+app.post('/api/publishing/retry', async (req: express.Request, res: express.Response) => {
+  try {
+    const { jobId } = req.body;
+    if (jobId && typeof jobId === 'string') {
+      const retriedJob = await socialPublisher.retryJob(jobId);
+      return res.json({ success: true, job: retriedJob });
+    }
+
+    const retriedJobs = await socialPublisher.retryFailed();
+    return res.json({ success: true, jobs: retriedJobs });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to retry publishing job' });
+  }
+});
+// API: Read ID3 Tags for Audio Track
+app.post('/api/id3/read', async (req: express.Request, res: express.Response) => {
+  try {
+    const { filePath } = req.body;
+    if (!filePath) return res.status(400).json({ error: 'filePath is required' });
+    const { readID3Tags } = await import('../metadata/id3-engine.js');
+    const tags = await readID3Tags(filePath);
+    return res.json({ success: true, tags });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to read ID3 tags' });
+  }
+});
+
+// API: Apply-to-All ID3 Field Cascading
+app.post('/api/id3/cascade', async (req: express.Request, res: express.Response) => {
+  try {
+    const { items, targetField, targetValue } = req.body;
+    if (!Array.isArray(items) || !targetField) {
+      return res.status(400).json({ error: 'items array and targetField are required' });
+    }
+    const { applyToAll } = await import('../metadata/id3-engine.js');
+    const updatedItems = applyToAll(items, targetField, targetValue);
+    return res.json({ success: true, items: updatedItems });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to cascade ID3 field' });
+  }
+});
+
 
 app.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;

@@ -6,3 +6,6 @@ export * from './presets/trap-piano';
 export * from './pipeline/scanner';
 export * from './pipeline/audio-analyzer';
 export * from './pipeline/queue';
+export * from './publishing/social-publisher';
+export * from './metadata/id3-engine';
+

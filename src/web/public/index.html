@@ -227,6 +227,153 @@
         </tbody>
       </table>
     </div>
+
+    <!-- REVIEW & PUBLISH STUDIO UI (POST-RENDER) -->
+    <div class="card" id="reviewPublishStudio" style="display: none; margin-top: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: var(--accent); font-size: 1.5rem;">🎬 Review & Publish Studio</h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span class="badge DONE" id="studioTrackCounter">Track 1 of 1</span>
+          <button style="padding: 6px 16px; font-size: 0.9rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="navStudioTrack(-1)">[Prev]</button>
+          <button style="padding: 6px 16px; font-size: 0.9rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="navStudioTrack(1)">[Next]</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <!-- LEFT TAG PANEL -->
+        <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border);">
+          <h3 style="margin-top: 0; color: var(--accent);">🏷️ ID3 Tag & Metadata Panel</h3>
+          
+          <!-- CD Art Frame -->
+          <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 18px; background: #151c2c; padding: 12px; border-radius: 8px;">
+            <div style="position: relative; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: #000;">
+              <img id="cdArtPreview" src="" alt="Album Art" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; top: 35px; left: 35px; width: 20px; height: 20px; background: #0b0f19; border-radius: 50%; border: 2px solid #fff;"></div>
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; color: var(--text-muted);">Album Artwork (CD Frame)</label>
+              <input type="file" id="artFileInput" accept="image/*" style="display: none;" onchange="handleArtworkUpload(this)">
+              <button style="margin-top: 8px; width: 100%; padding: 8px; background: #334155; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;" onclick="document.getElementById('artFileInput').click()">🖼️ Upload New Artwork</button>
+            </div>
+          </div>
+
+          <!-- ID3 Form Fields with "Apply to All" buttons -->
+          <div class="form-group">
+            <label>Track Title</label>
+            <input type="text" id="stTitle" placeholder="Track Title" oninput="updateStudioCurrentTrack('title', this.value)">
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label style="margin:0;">Artist</label>
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: var(--accent); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('artist', document.getElementById('stArtist').value)">Apply to All</button>
+            </div>
+            <input type="text" id="stArtist" placeholder="Artist Name" oninput="updateStudioCurrentTrack('artist', this.value)">
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label style="margin:0;">Album</label>
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: var(--accent); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('album', document.getElementById('stAlbum').value)">Apply to All</button>
+            </div>
+            <input type="text" id="stAlbum" placeholder="Album Title" oninput="updateStudioCurrentTrack('album', this.value)">
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin:0;">Genre</label>
+                <button style="padding: 2px 6px; font-size: 0.7rem; background: var(--accent); color: #000; border: none; border-radius: 3px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('genre', document.getElementById('stGenre').value)">Apply All</button>
+              </div>
+              <input type="text" id="stGenre" placeholder="Genre" oninput="updateStudioCurrentTrack('genre', this.value)">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin:0;">Year</label>
+                <button style="padding: 2px 6px; font-size: 0.7rem; background: var(--accent); color: #000; border: none; border-radius: 3px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('year', document.getElementById('stYear').value)">Apply All</button>
+              </div>
+              <input type="text" id="stYear" placeholder="Year" oninput="updateStudioCurrentTrack('year', this.value)">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin:0;">Composer</label>
+                <button style="padding: 2px 6px; font-size: 0.7rem; background: var(--accent); color: #000; border: none; border-radius: 3px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('composer', document.getElementById('stComposer').value)">Apply All</button>
+              </div>
+              <input type="text" id="stComposer" placeholder="Composer" oninput="updateStudioCurrentTrack('composer', this.value)">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin:0;">Publisher</label>
+                <button style="padding: 2px 6px; font-size: 0.7rem; background: var(--accent); color: #000; border: none; border-radius: 3px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('publisher', document.getElementById('stPublisher').value)">Apply All</button>
+              </div>
+              <input type="text" id="stPublisher" placeholder="Publisher" oninput="updateStudioCurrentTrack('publisher', this.value)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label style="margin:0;">Comments</label>
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: var(--accent); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: 700;" onclick="cascadeFieldToAll('comments', document.getElementById('stComments').value)">Apply to All</button>
+            </div>
+            <input type="text" id="stComments" placeholder="Comments / Notes" oninput="updateStudioCurrentTrack('comments', this.value)">
+          </div>
+        </div>
+
+        <!-- RIGHT HUB -->
+        <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 style="margin: 0; color: var(--accent);">📺 Video & Publishing Hub</h3>
+              <button id="approvalToggleBtn" style="padding: 6px 14px; background: #334155; color: #fff; border: none; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer;" onclick="toggleApprovalStatus()">STATUS: [EDIT]</button>
+            </div>
+
+            <!-- Video Thumbnail Preview -->
+            <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border);">
+              <img id="studioVideoThumb" src="" alt="Rendered Video Thumbnail Preview" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;" id="studioDuration">03:30</div>
+            </div>
+
+            <!-- 1-Click Clipboard Utilities -->
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+              <button style="flex: 1; padding: 8px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;" onclick="copyStudioToClipboard('title')">[📋 Copy Title]</button>
+              <button style="flex: 1; padding: 8px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;" onclick="copyStudioToClipboard('desc')">[📋 Copy Description]</button>
+              <button style="flex: 1; padding: 8px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;" onclick="copyStudioToClipboard('tags')">[📋 Copy Tags]</button>
+            </div>
+
+            <!-- Generated Post Copy -->
+            <div class="form-group">
+              <label>Generated Post Title</label>
+              <input type="text" id="studioPostTitle" oninput="updateStudioCurrentTrack('postTitle', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Generated Post Description / Caption</label>
+              <textarea id="studioPostDesc" rows="3" style="width: 100%; background: #151c2c; color: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px; box-sizing: border-box;" oninput="updateStudioCurrentTrack('postDesc', this.value)"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Hashtags & Tags</label>
+              <input type="text" id="studioPostTags" oninput="updateStudioCurrentTrack('postTags', this.value)">
+            </div>
+          </div>
+
+          <!-- Direct Social Dispatcher Buttons -->
+          <div style="margin-top: 14px; display: flex; gap: 10px;">
+            <button style="flex: 1; padding: 12px; background: #cc0000; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="publishStudioTrack('youtube')">▶ Publish to YouTube</button>
+            <button style="flex: 1; padding: 12px; background: #00f2fe; color: #000; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="publishStudioTrack('tiktok')">🎵 Publish to TikTok</button>
+            <button style="flex: 1; padding: 12px; background: #e1306c; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;" onclick="publishStudioTrack('instagram')">📸 Publish Reels</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPLETED VIDEO THUMBNAIL PLAYLIST GRID -->
+      <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 18px;">
+        <h3 style="margin-top: 0; color: var(--accent);">🖼️ Rendered Output Video Playlist Grid</h3>
+        <div id="playlistGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;">
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -307,9 +454,203 @@
           `;
           tbody.appendChild(row);
         });
+        let allDone = data.jobs.length > 0 && data.jobs.every(j => j.status === 'DONE' || j.status === 'FAILED');
+        if (allDone && document.getElementById('reviewPublishStudio').style.display === 'none') {
+          initReviewPublishStudio(data.jobs);
+        }
       } catch (err) {
         console.error('Polling status error:', err);
       }
+    }
+
+    let studioJobs = [];
+    let studioCurrentIdx = 0;
+
+    function initReviewPublishStudio(jobs) {
+      studioJobs = jobs || [];
+      if (studioJobs.length === 0) return;
+      
+      const studioCard = document.getElementById('reviewPublishStudio');
+      studioCard.style.display = 'block';
+      studioCard.scrollIntoView({ behavior: 'smooth' });
+
+      studioCurrentIdx = 0;
+      loadStudioTrack(studioCurrentIdx);
+      renderPlaylistGrid();
+    }
+
+    function loadStudioTrack(idx) {
+      if (idx < 0 || idx >= studioJobs.length) return;
+      studioCurrentIdx = idx;
+
+      const job = studioJobs[idx];
+      const track = job.track || {};
+      const meta = track.metadata || {};
+
+      document.getElementById('studioTrackCounter').innerText = `Track ${idx + 1} of ${studioJobs.length}`;
+      document.getElementById('stTitle').value = track.title || '';
+      document.getElementById('stArtist').value = track.artist || '';
+      document.getElementById('stAlbum').value = track.album || '';
+      document.getElementById('stGenre').value = meta.genre || '';
+      document.getElementById('stYear').value = meta.year || '';
+      document.getElementById('stComposer').value = meta.composer || '';
+      document.getElementById('stPublisher').value = meta.publisher || meta.copyright || '';
+      document.getElementById('stComments').value = meta.comment || meta.description || '';
+
+      document.getElementById('studioPostTitle').value = meta.youtubeTitle || `${track.artist} - ${track.title} (Official Visualizer)`;
+      document.getElementById('studioPostDesc').value = meta.youtubeDescription || `Official Visualizer for ${track.title} by ${track.artist}.\n\nAlbum: ${track.album}`;
+      document.getElementById('studioPostTags').value = Array.isArray(meta.hashtags) ? meta.hashtags.join(' ') : (meta.hashtags || '#trappiano #amapiano #music');
+
+      const cdImg = document.getElementById('cdArtPreview');
+      if (cdImg) cdImg.src = job.coverArtPath ? `/api/image?path=${encodeURIComponent(job.coverArtPath)}` : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%231e293b"/><circle cx="50" cy="50" r="15" fill="%230b0f19"/></svg>';
+
+      const thumbImg = document.getElementById('studioVideoThumb');
+      if (thumbImg) thumbImg.src = job.coverArtPath ? `/api/image?path=${encodeURIComponent(job.coverArtPath)}` : cdImg.src;
+
+      const approveBtn = document.getElementById('approvalToggleBtn');
+      if (approveBtn) {
+        const isApproved = job.approved === true;
+        approveBtn.innerText = isApproved ? 'STATUS: [APPROVED ✓]' : 'STATUS: [EDIT]';
+        approveBtn.style.background = isApproved ? '#10b981' : '#334155';
+      }
+    }
+
+    function navStudioTrack(delta) {
+      const newIdx = studioCurrentIdx + delta;
+      if (newIdx >= 0 && newIdx < studioJobs.length) {
+        loadStudioTrack(newIdx);
+      }
+    }
+
+    function toggleApprovalStatus() {
+      if (!studioJobs[studioCurrentIdx]) return;
+      studioJobs[studioCurrentIdx].approved = !studioJobs[studioCurrentIdx].approved;
+      loadStudioTrack(studioCurrentIdx);
+      renderPlaylistGrid();
+    }
+
+    function updateStudioCurrentTrack(field, val) {
+      if (!studioJobs[studioCurrentIdx]) return;
+      const job = studioJobs[studioCurrentIdx];
+      if (!job.track) job.track = {};
+      if (!job.track.metadata) job.track.metadata = {};
+
+      if (field === 'title') job.track.title = val;
+      if (field === 'artist') job.track.artist = val;
+      if (field === 'album') job.track.album = val;
+      if (field === 'genre') job.track.metadata.genre = val;
+      if (field === 'year') job.track.metadata.year = val;
+      if (field === 'composer') job.track.metadata.composer = val;
+      if (field === 'publisher') job.track.metadata.publisher = val;
+      if (field === 'comments') job.track.metadata.comment = val;
+      if (field === 'postTitle') job.track.metadata.youtubeTitle = val;
+      if (field === 'postDesc') job.track.metadata.youtubeDescription = val;
+      if (field === 'postTags') job.track.metadata.hashtags = val;
+    }
+
+    async function cascadeFieldToAll(targetField, targetValue) {
+      if (!targetValue) {
+        alert(`Please enter a value for ${targetField} before applying to all tracks.`);
+        return;
+      }
+      studioJobs.forEach(job => {
+        if (!job.track) job.track = {};
+        if (!job.track.metadata) job.track.metadata = {};
+
+        if (targetField === 'artist') job.track.artist = targetValue;
+        if (targetField === 'album') job.track.album = targetValue;
+        if (targetField === 'genre') job.track.metadata.genre = targetValue;
+        if (targetField === 'year') job.track.metadata.year = targetValue;
+        if (targetField === 'composer') job.track.metadata.composer = targetValue;
+        if (targetField === 'publisher') job.track.metadata.publisher = targetValue;
+        if (targetField === 'comments') job.track.metadata.comment = targetValue;
+      });
+
+      alert(`✅ Applied "${targetValue}" across all ${studioJobs.length} tracks!`);
+      loadStudioTrack(studioCurrentIdx);
+    }
+
+    function copyStudioToClipboard(type) {
+      let text = '';
+      if (type === 'title') text = document.getElementById('studioPostTitle').value;
+      if (type === 'desc') text = document.getElementById('studioPostDesc').value;
+      if (type === 'tags') text = document.getElementById('studioPostTags').value;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`📋 Copied ${type.toUpperCase()} to clipboard!`);
+      }).catch(() => {
+        alert('Copy failed, please copy manually.');
+      });
+    }
+
+    async function publishStudioTrack(platform) {
+      const job = studioJobs[studioCurrentIdx];
+      if (!job) return;
+
+      const title = document.getElementById('studioPostTitle').value.trim();
+      const description = document.getElementById('studioPostDesc').value.trim();
+      const tags = document.getElementById('studioPostTags').value.trim().split(/\s+/);
+
+      try {
+        const res = await fetch('/api/publishing/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            requests: [{
+              filePath: job.outputFilePath || job.track?.filePath || '',
+              platform: platform,
+              title: title,
+              description: description,
+              tags: tags
+            }]
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert(`🚀 Video queued for publishing to ${platform.toUpperCase()}!`);
+        } else {
+          alert(`Publishing failed: ${data.error || 'Unknown error'}`);
+        }
+      } catch (err) {
+        alert(`Failed to connect to publishing API: ${err.message}`);
+      }
+    }
+
+    function handleArtworkUpload(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('cdArtPreview').src = e.target.result;
+          alert('🖼️ Album artwork updated for track!');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function renderPlaylistGrid() {
+      const grid = document.getElementById('playlistGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      studioJobs.forEach((job, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: #151c2c; border: 1px solid var(--border); border-radius: 8px; padding: 10px; cursor: pointer; position: relative;';
+        card.onclick = () => loadStudioTrack(idx);
+
+        const isApproved = job.approved === true;
+        const statusBadge = isApproved ? '<span class="badge DONE" style="position: absolute; top: 14px; right: 14px;">APPROVED</span>' : '<span class="badge RENDERING" style="position: absolute; top: 14px; right: 14px;">EDIT</span>';
+
+        card.innerHTML = `
+          <div style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+            <img src="${job.coverArtPath ? '/api/image?path=' + encodeURIComponent(job.coverArtPath) : ''}" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          ${statusBadge}
+          <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">#${job.track?.trackNumber || idx+1} ${job.track?.title || 'Track'}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">${job.track?.artist || 'Artist'}</div>
+        `;
+        grid.appendChild(card);
+      });
     }
   </script>
 </body>
