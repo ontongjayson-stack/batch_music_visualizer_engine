@@ -6,6 +6,43 @@
 import { VisualPreset, VisualPresetName, AspectRatioMode, Dimensions, SafeAreaInsets } from './types.js';
 
 export const VISUAL_PRESETS: Record<VisualPresetName, VisualPreset> = {
+  'CINEMATIC-ALBUM': {
+    name: 'CINEMATIC-ALBUM',
+    description: 'Ultra-polished cinematic album artwork visualizer with atmospheric blur, breathing hero art, subtle radial spectrum, and ambient lighting',
+    colors: {
+      primary: '#38bdf8',
+      secondary: '#818cf8',
+      accent: '#c084fc',
+      background: '#07090e',
+      textPrimary: '#ffffff',
+      textSecondary: '#94a3b8',
+      glow: '#38bdf860',
+      particleColors: ['#38bdf8', '#818cf8', '#c084fc', '#ffffff'],
+    },
+    visualizerMode: 'CIRCULAR',
+    particleType: 'dust',
+    particleCount: 40,
+    particleSpeedMultiplier: 0.6,
+    kenBurns: {
+      enabled: true,
+      zoomStart: 1.0,
+      zoomEnd: 1.08,
+      panX: 0.03,
+      panY: -0.03,
+      speed: 0.8,
+    },
+    glowIntensity: 22,
+    barCount: 64,
+    barWidth: 5,
+    barGap: 3,
+    bassReactivity: 1.4,
+    fontFamily: 'Inter, sans-serif',
+    overlayOpacity: 0.5,
+    vignetteStrength: 0.7,
+    mirrorSpectrum: true,
+    circularRadiusRatio: 0.24,
+  },
+
   DEFAULT: {
     name: 'DEFAULT',
     description: 'Clean modern studio visualizer with balanced cyan/indigo aesthetic',
@@ -327,5 +364,5 @@ export function getPreset(name?: VisualPresetName): VisualPreset {
   if (name && VISUAL_PRESETS[name]) {
     return VISUAL_PRESETS[name];
   }
-  return VISUAL_PRESETS.DEFAULT;
+  return VISUAL_PRESETS['CINEMATIC-ALBUM'] || VISUAL_PRESETS.DEFAULT;
 }

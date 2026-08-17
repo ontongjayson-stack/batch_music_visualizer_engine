@@ -26,6 +26,7 @@ import { ParticleSystem } from './components/particles.js';
 import { drawSpectrum } from './components/spectrum.js';
 import { drawProgressBar } from './components/progress.js';
 import { drawTextLayout } from './components/textLayout.js';
+import { drawCinematicAlbumComposition } from './components/cinematicAlbum.js';
 
 /**
  * Gets exact duration of an audio file in seconds using ffprobe/ffmpeg.
@@ -190,49 +191,63 @@ export async function renderVideo(options: RenderOptions): Promise<RenderResult>
   });
 
   // 8. Render Frame-by-Frame Pipeline
-  for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
-    // Clear canvas frame
-    ctx.clearRect(0, 0, width, height);
+    for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
+      // Clear canvas frame
+      ctx.clearRect(0, 0, width, height);
 
-    // Get current audio frame parameters
-    const audioData = getFrameAudioData(audioAnalysis, frameIndex, fps);
+      // Get current audio frame parameters
+      const audioData = getFrameAudioData(audioAnalysis, frameIndex, fps);
 
-    // a. Draw Background (Ken Burns + Vignette)
-    drawBackground({
-      ctx,
-      dimensions,
-      preset,
-      frameIndex,
-      totalFrames,
-      audioData,
-      bgImage,
-    });
+      if (preset.name === 'CINEMATIC-ALBUM') {
+        // Render 6-Layer Cinematic Album V1 Visual Composition
+        drawCinematicAlbumComposition({
+          ctx,
+          dimensions,
+          preset,
+          frameIndex,
+          totalFrames,
+          audioData,
+          coverImage: bgImage,
+          trackTitle,
+          artistName,
+          albumName,
+          safeArea,
+        });
+      } else {
+        // Standard Visual Presets Sequence
+        drawBackground({
+          ctx,
+          dimensions,
+          preset,
+          frameIndex,
+          totalFrames,
+          audioData,
+          bgImage,
+        });
 
-    // b. Update & Render Particle System
-    particleSystem.updateAndDraw(ctx, preset, audioData);
+        particleSystem.updateAndDraw(ctx, preset, audioData);
 
-    // c. Render Audio Spectrum Visualizer
-    drawSpectrum({
-      ctx,
-      dimensions,
-      preset,
-      audioData,
-      safeArea,
-    });
+        drawSpectrum({
+          ctx,
+          dimensions,
+          preset,
+          audioData,
+          safeArea,
+        });
 
-    // d. Render Dynamic Text & Branding Layout
-    drawTextLayout({
-      ctx,
-      dimensions,
-      aspectRatio: aspectInput,
-      preset,
-      safeArea,
-      trackTitle,
-      artistName,
-      albumName,
-      watermarkText,
-      logoImage,
-    });
+        drawTextLayout({
+          ctx,
+          dimensions,
+          aspectRatio: aspectInput,
+          preset,
+          safeArea,
+          trackTitle,
+          artistName,
+          albumName,
+          watermarkText,
+          logoImage,
+        });
+      }
 
     // e. Render Progress Bar & Duration Counter
     drawProgressBar({

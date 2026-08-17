@@ -16,6 +16,7 @@ export type ParticleType = 'sparks' | 'dust' | 'fireflies' | 'smoke' | 'glow';
 
 export type VisualPresetName =
   | 'DEFAULT'
+  | 'CINEMATIC-ALBUM'
   | 'TRAP-PIANO'
   | 'DARK-CINEMATIC'
   | 'AMAPIANO'
