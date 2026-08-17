@@ -119,7 +119,7 @@ export class JobQueueManager extends EventEmitter {
     }
 
     this.processNextJobs();
-    return this.completionPromise;
+    return this.completionPromise || Promise.resolve();
   }
 
   public pause(): void {

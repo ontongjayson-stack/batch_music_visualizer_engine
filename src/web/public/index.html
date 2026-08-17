@@ -629,11 +629,36 @@ Experience the official cinematic audio visualizer for "${title}" by ${artist}, 
       if (type === 'desc') text = document.getElementById('studioPostDesc').value;
       if (type === 'tags') text = document.getElementById('studioPostTags').value;
 
-      navigator.clipboard.writeText(text).then(() => {
+      if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        try {
+          const res = navigator.clipboard.writeText(text);
+          if (res && typeof res.then === 'function') {
+            res.then(() => {
+              alert(`📋 Copied ${type.toUpperCase()} to clipboard!`);
+            }).catch(() => {
+              fallbackCopyText(text, type);
+            });
+            return;
+          }
+        } catch (e) {
+          // Fallback to text area copy
+        }
+      }
+      fallbackCopyText(text, type);
+    }
+
+    function fallbackCopyText(text, type) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
         alert(`📋 Copied ${type.toUpperCase()} to clipboard!`);
-      }).catch(() => {
-        alert('Copy failed, please copy manually.');
-      });
+      } catch (err) {
+        alert('Copy failed, please copy text manually.');
+      }
     }
 
     async function publishStudioTrack(platform) {

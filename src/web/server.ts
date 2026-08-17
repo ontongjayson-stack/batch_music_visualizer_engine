@@ -78,9 +78,12 @@ app.post('/api/generate', async (req, res) => {
     await activeQueueManager.initializeFromAlbum(bundle, renderOptions, true);
 
     // Asynchronously trigger queue processing
-    activeQueueManager.start().catch((err) => {
-      console.error('[Web Queue Error]:', err);
-    });
+    const startPromise = activeQueueManager.start();
+    if (startPromise && typeof startPromise.catch === 'function') {
+      startPromise.catch((err) => {
+        console.error('[Web Queue Error]:', err);
+      });
+    }
 
     res.json({ success: true, message: 'Batch queue initialized & started' });
   } catch (err: any) {
@@ -142,9 +145,12 @@ app.post('/api/publishing/publish', async (req: express.Request, res: express.Re
 
     if (isAsync !== false) {
       // Asynchronously trigger queue processing
-      socialPublisher.processQueue().catch((err) => {
-        console.error('[Publishing Queue Async Error]:', err);
-      });
+      const processPromise = socialPublisher.processQueue();
+      if (processPromise && typeof processPromise.catch === 'function') {
+        processPromise.catch((err) => {
+          console.error('[Publishing Queue Async Error]:', err);
+        });
+      }
 
       return res.json({
         success: true,
