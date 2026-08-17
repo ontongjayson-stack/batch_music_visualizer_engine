@@ -244,16 +244,18 @@
         <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border);">
           <h3 style="margin-top: 0; color: var(--accent);">🏷️ ID3 Tag & Metadata Panel</h3>
           
-          <!-- CD Art Frame -->
-          <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 18px; background: #151c2c; padding: 12px; border-radius: 8px;">
-            <div style="position: relative; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: #000;">
-              <img id="cdArtPreview" src="" alt="Album Art" style="width: 100%; height: 100%; object-fit: cover;">
-              <div style="position: absolute; top: 35px; left: 35px; width: 20px; height: 20px; background: #0b0f19; border-radius: 50%; border: 2px solid #fff;"></div>
+          <!-- 1:1 Square Album Artwork Container -->
+          <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 18px; background: #151c2c; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+            <div style="position: relative; width: 110px; height: 110px; border-radius: 8px; overflow: hidden; border: 2px solid var(--accent); background: #0f172a; flex-shrink: 0; display: flex; align-items: center; justify-content: center; text-align: center;">
+              <img id="squareArtPreview" src="" alt="Album Art" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+              <div id="squareArtPlaceholder" style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; padding: 8px;">
+                🖼️<br>Upload Artwork
+              </div>
             </div>
             <div style="flex: 1;">
-              <label style="font-size: 0.85rem; color: var(--text-muted);">Album Artwork (CD Frame)</label>
+              <label style="font-size: 0.85rem; color: var(--text-muted);">Album Artwork (1:1 Square Container)</label>
               <input type="file" id="artFileInput" accept="image/*" style="display: none;" onchange="handleArtworkUpload(this)">
-              <button style="margin-top: 8px; width: 100%; padding: 8px; background: #334155; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;" onclick="document.getElementById('artFileInput').click()">🖼️ Upload New Artwork</button>
+              <button style="margin-top: 8px; width: 100%; padding: 8px; background: #334155; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;" onclick="document.getElementById('artFileInput').click()">🖼️ Select Artwork File</button>
             </div>
           </div>
 
@@ -327,13 +329,14 @@
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h3 style="margin: 0; color: var(--accent);">📺 Video & Publishing Hub</h3>
-              <button id="approvalToggleBtn" style="padding: 6px 14px; background: #334155; color: #fff; border: none; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer;" onclick="toggleApprovalStatus()">STATUS: [EDIT]</button>
+              <button id="approvalToggleBtn" style="padding: 6px 14px; background: #10b981; color: #fff; border: none; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer;" onclick="toggleApprovalStatus()">STATUS: [READY TO PUBLISH ✓]</button>
             </div>
 
-            <!-- Video Thumbnail Preview -->
+            <!-- In-App Video Player & First-Frame Thumbnail Preview -->
             <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border);">
-              <img id="studioVideoThumb" src="" alt="Rendered Video Thumbnail Preview" style="width: 100%; height: 100%; object-fit: cover;">
-              <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;" id="studioDuration">03:30</div>
+              <video id="studioVideoPlayer" controls style="width: 100%; height: 100%; object-fit: contain; background: #000;" poster="">
+                Your browser does not support HTML5 video playback.
+              </video>
             </div>
 
             <!-- 1-Click Clipboard Utilities -->
@@ -349,8 +352,8 @@
               <input type="text" id="studioPostTitle" oninput="updateStudioCurrentTrack('postTitle', this.value)">
             </div>
             <div class="form-group">
-              <label>Generated Post Description / Caption</label>
-              <textarea id="studioPostDesc" rows="3" style="width: 100%; background: #151c2c; color: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px; box-sizing: border-box;" oninput="updateStudioCurrentTrack('postDesc', this.value)"></textarea>
+              <label>Generated Detailed Post Description / Caption</label>
+              <textarea id="studioPostDesc" rows="6" style="width: 100%; background: #151c2c; color: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 0.85rem; line-height: 1.4; box-sizing: border-box;" oninput="updateStudioCurrentTrack('postDesc', this.value)"></textarea>
             </div>
             <div class="form-group">
               <label>Hashtags & Tags</label>
@@ -370,7 +373,7 @@
       <!-- COMPLETED VIDEO THUMBNAIL PLAYLIST GRID -->
       <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 18px;">
         <h3 style="margin-top: 0; color: var(--accent);">🖼️ Rendered Output Video Playlist Grid</h3>
-        <div id="playlistGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;">
+        <div id="playlistGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px;">
         </div>
       </div>
     </div>
@@ -479,6 +482,31 @@
       renderPlaylistGrid();
     }
 
+    function generateRichPostDescription(track, meta) {
+      const title = track.title || 'Untitled Track';
+      const artist = track.artist || 'Unknown Artist';
+      const album = track.album || 'Single Release';
+      const genre = meta.genre || 'Music';
+      const year = meta.year || new Date().getFullYear();
+      const composer = meta.composer || artist;
+      const publisher = meta.publisher || meta.copyright || 'Independent';
+
+      return `🎵 ${artist} - ${title} (Official Audio Visualizer)
+
+Experience the official cinematic audio visualizer for "${title}" by ${artist}, featured on the album "${album}".
+
+📌 TRACK CREDITS & METADATA:
+• Artist: ${artist}
+• Track Title: ${title}
+• Album: ${album}
+• Genre: ${genre}
+• Release Year: ${year}
+• Composer / Producer: ${composer}
+• Record Label / Publisher: ${publisher}
+
+✨ Subscribe for more official visualizers, music releases, and beat drops. Like, comment, and share to support!`;
+    }
+
     function loadStudioTrack(idx) {
       if (idx < 0 || idx >= studioJobs.length) return;
       studioCurrentIdx = idx;
@@ -498,20 +526,45 @@
       document.getElementById('stComments').value = meta.comment || meta.description || '';
 
       document.getElementById('studioPostTitle').value = meta.youtubeTitle || `${track.artist} - ${track.title} (Official Visualizer)`;
-      document.getElementById('studioPostDesc').value = meta.youtubeDescription || `Official Visualizer for ${track.title} by ${track.artist}.\n\nAlbum: ${track.album}`;
-      document.getElementById('studioPostTags').value = Array.isArray(meta.hashtags) ? meta.hashtags.join(' ') : (meta.hashtags || '#trappiano #amapiano #music');
+      document.getElementById('studioPostDesc').value = meta.youtubeDescription || generateRichPostDescription(track, meta);
+      document.getElementById('studioPostTags').value = Array.isArray(meta.hashtags) ? meta.hashtags.join(' ') : (meta.hashtags || '#trappiano #amapiano #music #officialvideo');
 
-      const cdImg = document.getElementById('cdArtPreview');
-      if (cdImg) cdImg.src = job.coverArtPath ? `/api/image?path=${encodeURIComponent(job.coverArtPath)}` : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%231e293b"/><circle cx="50" cy="50" r="15" fill="%230b0f19"/></svg>';
+      // Square Artwork Container Preview
+      const squareImg = document.getElementById('squareArtPreview');
+      const squarePlaceholder = document.getElementById('squareArtPlaceholder');
+      if (job.coverArtPath) {
+        squareImg.src = `/api/image?path=${encodeURIComponent(job.coverArtPath)}`;
+        squareImg.style.display = 'block';
+        if (squarePlaceholder) squarePlaceholder.style.display = 'none';
+      } else {
+        squareImg.style.display = 'none';
+        if (squarePlaceholder) squarePlaceholder.style.display = 'block';
+      }
 
-      const thumbImg = document.getElementById('studioVideoThumb');
-      if (thumbImg) thumbImg.src = job.coverArtPath ? `/api/image?path=${encodeURIComponent(job.coverArtPath)}` : cdImg.src;
+      // HTML5 In-App Video Player & First Frame Poster
+      const videoPlayer = document.getElementById('studioVideoPlayer');
+      if (videoPlayer) {
+        const mp4Path = Array.isArray(job.outputFiles) ? job.outputFiles.find(f => typeof f === 'string' && f.endsWith('.mp4')) : null;
+        if (mp4Path) {
+          videoPlayer.src = `/api/video/stream?path=${encodeURIComponent(mp4Path)}`;
+        } else {
+          videoPlayer.removeAttribute('src');
+        }
 
+        const posterPath = job.videoThumbPath || job.coverArtPath;
+        if (posterPath) {
+          videoPlayer.poster = `/api/image?path=${encodeURIComponent(posterPath)}`;
+        } else {
+          videoPlayer.removeAttribute('poster');
+        }
+      }
+
+      // Status Badge Toggle (Ready to Publish / Pending Review)
       const approveBtn = document.getElementById('approvalToggleBtn');
       if (approveBtn) {
         const isApproved = job.approved === true;
-        approveBtn.innerText = isApproved ? 'STATUS: [APPROVED ✓]' : 'STATUS: [EDIT]';
-        approveBtn.style.background = isApproved ? '#10b981' : '#334155';
+        approveBtn.innerText = isApproved ? 'STATUS: [READY TO PUBLISH ✓]' : 'STATUS: [PENDING REVIEW]';
+        approveBtn.style.background = isApproved ? '#10b981' : '#f59e0b';
       }
     }
 
@@ -590,6 +643,7 @@
       const title = document.getElementById('studioPostTitle').value.trim();
       const description = document.getElementById('studioPostDesc').value.trim();
       const tags = document.getElementById('studioPostTags').value.trim().split(/\s+/);
+      const mp4Path = Array.isArray(job.outputFiles) ? job.outputFiles.find(f => typeof f === 'string' && f.endsWith('.mp4')) : (job.track?.filePath || '');
 
       try {
         const res = await fetch('/api/publishing/publish', {
@@ -597,7 +651,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             requests: [{
-              filePath: job.outputFilePath || job.track?.filePath || '',
+              filePath: mp4Path,
               platform: platform,
               title: title,
               description: description,
@@ -621,7 +675,13 @@
       if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          document.getElementById('cdArtPreview').src = e.target.result;
+          const squareImg = document.getElementById('squareArtPreview');
+          const squarePlaceholder = document.getElementById('squareArtPlaceholder');
+          if (squareImg) {
+            squareImg.src = e.target.result;
+            squareImg.style.display = 'block';
+          }
+          if (squarePlaceholder) squarePlaceholder.style.display = 'none';
           alert('🖼️ Album artwork updated for track!');
         };
         reader.readAsDataURL(input.files[0]);
@@ -635,19 +695,25 @@
 
       studioJobs.forEach((job, idx) => {
         const card = document.createElement('div');
-        card.style.cssText = 'background: #151c2c; border: 1px solid var(--border); border-radius: 8px; padding: 10px; cursor: pointer; position: relative;';
-        card.onclick = () => loadStudioTrack(idx);
+        card.style.cssText = 'background: #151c2c; border: 1px solid var(--border); border-radius: 8px; padding: 12px; position: relative; display: flex; flex-direction: column; justify-content: space-between;';
 
         const isApproved = job.approved === true;
-        const statusBadge = isApproved ? '<span class="badge DONE" style="position: absolute; top: 14px; right: 14px;">APPROVED</span>' : '<span class="badge RENDERING" style="position: absolute; top: 14px; right: 14px;">EDIT</span>';
+        const statusBadge = isApproved 
+          ? '<span class="badge DONE" style="position: absolute; top: 18px; right: 18px; font-size: 0.7rem;">READY</span>' 
+          : '<span class="badge RENDERING" style="position: absolute; top: 18px; right: 18px; font-size: 0.7rem; background: #f59e0b; color: #000;">REVIEW</span>';
+
+        const thumbSrc = job.videoThumbPath ? `/api/image?path=${encodeURIComponent(job.videoThumbPath)}` : (job.coverArtPath ? `/api/image?path=${encodeURIComponent(job.coverArtPath)}` : '');
 
         card.innerHTML = `
-          <div style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
-            <img src="${job.coverArtPath ? '/api/image?path=' + encodeURIComponent(job.coverArtPath) : ''}" style="width: 100%; height: 100%; object-fit: cover;">
+          <div>
+            <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 6px; overflow: hidden; margin-bottom: 10px; border: 1px solid var(--border);">
+              ${thumbSrc ? `<img src="${thumbSrc}" style="width: 100%; height: 100%; object-fit: cover;">` : '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#64748b; font-size:0.8rem;">No Video Preview</div>'}
+              ${statusBadge}
+            </div>
+            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">#${job.track?.trackNumber || idx+1} ${job.track?.title || 'Track'}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${job.track?.artist || 'Artist'}</div>
           </div>
-          ${statusBadge}
-          <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">#${job.track?.trackNumber || idx+1} ${job.track?.title || 'Track'}</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted);">${job.track?.artist || 'Artist'}</div>
+          <button style="width: 100%; padding: 8px; background: #3b82f6; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;" onclick="loadStudioTrack(${idx})">▶ Play & Review Video</button>
         `;
         grid.appendChild(card);
       });

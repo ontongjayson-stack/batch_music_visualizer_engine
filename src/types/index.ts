@@ -102,6 +102,8 @@ export interface QueueJob {
   updatedAt: string;
   analysisDataPath?: string;
   outputFiles?: string[];
+  videoThumbPath?: string;
+  approved?: boolean;
 }
 
 export interface QueueState {

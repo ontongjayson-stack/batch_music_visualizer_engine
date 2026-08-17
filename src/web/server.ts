@@ -240,18 +240,50 @@ app.post('/api/id3/read', async (req: express.Request, res: express.Response) =>
   }
 });
 
-// API: Apply-to-All ID3 Field Cascading
-app.post('/api/id3/cascade', async (req: express.Request, res: express.Response) => {
-  try {
-    const { items, targetField, targetValue } = req.body;
-    if (!Array.isArray(items) || !targetField) {
-      return res.status(400).json({ error: 'items array and targetField are required' });
-    }
-    const { applyToAll } = await import('../metadata/id3-engine.js');
-    const updatedItems = applyToAll(items, targetField, targetValue);
-    return res.json({ success: true, items: updatedItems });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Failed to cascade ID3 field' });
+// API: Serve Local Image Files (Album Art & Frame Thumbnails)
+app.get('/api/image', (req: express.Request, res: express.Response) => {
+  const filePath = req.query.path as string;
+  if (!filePath || !fs.existsSync(filePath)) {
+    return res.status(404).send('Image file not found');
+  }
+  res.sendFile(path.resolve(filePath));
+});
+
+// API: Stream Rendered MP4 Videos with Range Header Support
+app.get('/api/video/stream', (req: express.Request, res: express.Response) => {
+  const filePath = req.query.path as string;
+  if (!filePath || !fs.existsSync(filePath)) {
+    return res.status(404).send('Video file not found');
+  }
+
+  const resolvedPath = path.resolve(filePath);
+  const stat = fs.statSync(resolvedPath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const chunksize = end - start + 1;
+    const file = fs.createReadStream(resolvedPath, { start, end });
+
+    const head = {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'video/mp4',
+    };
+
+    res.writeHead(206, head);
+    file.pipe(res);
+  } else {
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'video/mp4',
+    };
+    res.writeHead(200, head);
+    fs.createReadStream(resolvedPath).pipe(res);
   }
 });
 

@@ -305,6 +305,24 @@ export class JobQueueManager extends EventEmitter {
       if (thumbResult?.path16x9) outputFiles.push(thumbResult.path16x9);
       if (thumbResult?.path9x16) outputFiles.push(thumbResult.path9x16);
 
+      // Extract actual first frame (frame 0) from rendered output video for studio preview
+      if (outputFiles.length > 0) {
+        const firstVideoPath = outputFiles.find((f) => f.endsWith('.mp4'));
+        if (firstVideoPath && (await fs.pathExists(firstVideoPath))) {
+          const videoThumbPath = path.join(thumbDir, `${job.track.trackNumber.toString().padStart(2, '0')} - ${job.track.title}_frame0.png`);
+          try {
+            const { spawn } = await import('child_process');
+            const ffProc = spawn('ffmpeg', ['-y', '-i', firstVideoPath, '-vframes', '1', videoThumbPath]);
+            await new Promise((resolve) => ffProc.on('close', resolve));
+            if (await fs.pathExists(videoThumbPath)) {
+              job.videoThumbPath = videoThumbPath;
+            }
+          } catch (err) {
+            console.warn('[Queue] Could not extract video first frame:', err);
+          }
+        }
+      }
+
       job.outputFiles = outputFiles;
       job.status = 'DONE';
       job.progress = 100;
