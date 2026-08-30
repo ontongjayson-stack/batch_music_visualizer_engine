@@ -101,6 +101,18 @@ export class FreeAIProvider implements IAIProvider {
   async generateArtwork(prompt: string, width: number = 1280, height: number = 720): Promise<ImageGenerationResult> {
     const providerName = this.config.provider?.toLowerCase();
 
+    // 1. Fooocus Cloud / Local Gradio Endpoint Mode
+    if (providerName === 'fooocus' || (this.config.endpointUrl && (this.config.endpointUrl.includes('gradio.live') || this.config.endpointUrl.includes('127.0.0.1') || this.config.endpointUrl.includes('localhost')))) {
+      try {
+        const result = await this.fetchFooocusArtwork(prompt, width, height);
+        if (result) {
+          return result;
+        }
+      } catch (err) {
+        // Fall back gracefully
+      }
+    }
+
     if (providerName === 'pollinations' || !providerName) {
       try {
         const seed = Math.floor(Math.random() * 1000000);
@@ -164,6 +176,58 @@ export class FreeAIProvider implements IAIProvider {
   }
 
   // --- PRIVATE IMPLEMENTATION & LOCAL FALLBACKS ---
+
+  private async fetchFooocusArtwork(prompt: string, width: number, height: number): Promise<ImageGenerationResult | null> {
+    const baseUrl = (this.config.endpointUrl || 'http://127.0.0.1:8888').replace(/\/+$/, '');
+    const apiUrl = `${baseUrl}/api/predict`;
+
+    try {
+      const response = await this.fetchWithTimeout(
+        apiUrl,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fn_index: 32, // standard Fooocus Gradio text2img fn
+            data: [
+              prompt, // prompt
+              "", // negative prompt
+              ["Speed"], // style performance
+              "1024×1024", // aspect ratio
+              1, // image number
+              Math.floor(Math.random() * 1000000), // seed
+              2, // sharpness
+              7 // guidance scale
+            ]
+          })
+        },
+        this.config.timeoutMs || 25000
+      );
+
+      if (response && response.ok) {
+        const data = await response.json() as any;
+        if (data.data && Array.isArray(data.data) && data.data[0]) {
+          const imgObj = data.data[0][0] || data.data[0];
+          const imgUrl = typeof imgObj === 'string' ? imgObj : (imgObj.name ? `${baseUrl}/file=${imgObj.name}` : imgObj.url);
+
+          if (imgUrl) {
+            const imgRes = await this.fetchWithTimeout(imgUrl, { method: 'GET' }, 10000);
+            if (imgRes && imgRes.ok) {
+              const arrayBuffer = await imgRes.arrayBuffer();
+              return {
+                imageBuffer: Buffer.from(arrayBuffer),
+                mimeType: 'image/png',
+                source: 'fooocus'
+              };
+            }
+          }
+        }
+      }
+    } catch (err) {
+      // Fallback
+    }
+    return null;
+  }
 
   private async fetchPollinationsText(prompt: string, systemPrompt?: string): Promise<string | null> {
     const fullPrompt = systemPrompt ? `${systemPrompt}\n\nUser: ${prompt}` : prompt;

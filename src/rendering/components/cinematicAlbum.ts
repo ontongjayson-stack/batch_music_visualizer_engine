@@ -142,7 +142,7 @@ export function drawCinematicAlbumComposition(options: CinematicAlbumDrawOptions
   ctx.fillRect(0, 0, width, height);
 
   // =========================================================================
-  // LAYER 4 (PRE): AMBIENT LIGHTING (CORNER LIGHT BLOBS)
+  // LAYER 4 (PRE): 2.5D DEPTH-PLANE LIGHTING & TRANSIENT EXPOSURE FLARES
   // =========================================================================
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
@@ -160,6 +160,21 @@ export function drawCinematicAlbumComposition(options: CinematicAlbumDrawOptions
   blob2Grad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = blob2Grad;
   ctx.fillRect(width * 0.4, height * 0.4, width * 0.6, height * 0.6);
+
+  // Transient-Driven Exposure Flare (Lightning / Beam Glow on Peak Kick Transients)
+  const isKickPeak = (audioData.kickTransient !== undefined ? audioData.kickTransient > 0.6 : (audioData.isBeat && bassEnergy > 0.65));
+  if (isKickPeak) {
+    const flareIntensity = (audioData.kickTransient || bassEnergy) * 0.35;
+    const flareGrad = ctx.createRadialGradient(
+      width * 0.5, height * 0.44, 20,
+      width * 0.5, height * 0.44, Math.max(width, height) * 0.6
+    );
+    flareGrad.addColorStop(0, `rgba(255, 255, 255, ${flareIntensity})`);
+    flareGrad.addColorStop(0.3, `${primaryColor}${Math.floor(flareIntensity * 200).toString(16).padStart(2, '0')}`);
+    flareGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = flareGrad;
+    ctx.fillRect(0, 0, width, height);
+  }
 
   ctx.restore();
 
