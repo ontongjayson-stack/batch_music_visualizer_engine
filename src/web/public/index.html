@@ -539,6 +539,7 @@
   </div>
 
   <script>
+    let pollInterval = null;
     let currentPreviewAspect = '16:9';
     let mainUploadedCoverPath = '';
     let mainUploadedBgPath = '';
@@ -549,7 +550,10 @@
         const data = await res.json();
         if (data.success && data.folderPath) {
           const input = document.getElementById('albumFolder');
-          if (input) input.value = data.folderPath;
+          if (input) {
+            input.value = data.folderPath;
+            input.style.borderColor = 'var(--accent)';
+          }
           scanSelectedAlbumFolder(data.folderPath);
         } else if (data.canceled) {
           // User canceled picker modal
