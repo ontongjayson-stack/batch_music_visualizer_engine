@@ -261,11 +261,12 @@
 
       <!-- LIVE REAL-TIME VISUALIZER PREVIEW WINDOW -->
       <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
           <h3 style="margin: 0; color: var(--accent); font-size: 1.15rem;">👁️ Live Visualizer Composition Preview</h3>
-          <div style="display: flex; gap: 8px;">
-            <button id="previewAspectLandscapeBtn" style="padding: 4px 12px; font-size: 0.8rem; background: var(--accent); color: #000; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;" onclick="setPreviewAspectRatio('16:9')">16:9 Landscape</button>
-            <button id="previewAspectPortraitBtn" style="padding: 4px 12px; font-size: 0.8rem; background: #334155; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;" onclick="setPreviewAspectRatio('9:16')">9:16 Vertical</button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="refreshPreviewBtn" style="padding: 6px 14px; font-size: 0.8rem; background: #0284c7; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="updateLiveVisualizerPreview(true)">🔄 Refresh Preview</button>
+            <button id="previewAspectLandscapeBtn" style="padding: 6px 12px; font-size: 0.8rem; background: var(--accent); color: #000; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="setPreviewAspectRatio('16:9')">16:9 Landscape</button>
+            <button id="previewAspectPortraitBtn" style="padding: 6px 12px; font-size: 0.8rem; background: #334155; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;" onclick="setPreviewAspectRatio('9:16')">9:16 Vertical</button>
           </div>
         </div>
 
@@ -678,10 +679,16 @@
       }
     }
 
-    async function updateLiveVisualizerPreview() {
+    async function updateLiveVisualizerPreview(isManualRefresh = false) {
       const spinner = document.getElementById('livePreviewSpinner');
       const img = document.getElementById('livePreviewImg');
+      const refreshBtn = document.getElementById('refreshPreviewBtn');
+      
       if (spinner) spinner.style.display = 'block';
+      if (refreshBtn && isManualRefresh) {
+        refreshBtn.innerText = '⏳ Refreshing...';
+        refreshBtn.disabled = true;
+      }
 
       const presetSelect = document.getElementById('presetSelect');
       const preset = presetSelect ? presetSelect.value : 'PRO-CINEMATIC-SPEAKER';
@@ -724,6 +731,11 @@
         }
       } catch (err) {
         console.error('Live preview generation error:', err);
+      } finally {
+        if (refreshBtn) {
+          refreshBtn.innerText = '🔄 Refresh Preview';
+          refreshBtn.disabled = false;
+        }
       }
     }
 
