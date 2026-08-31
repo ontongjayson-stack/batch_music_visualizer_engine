@@ -267,7 +267,9 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
       trackTitle = 'Midnight Piano Trap',
       artistName = 'Antigravity Studio',
       albumName = 'Cinematic Album V1',
-      coverArtPath
+      coverArtPath,
+      bgArtPath,
+      bgBlurRadius = 28
     } = req.body;
 
     const { createCanvas, loadImage } = await import('@napi-rs/canvas');
@@ -300,6 +302,15 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
       }
     }
 
+    let loadedBg = null;
+    if (bgArtPath && fs.existsSync(bgArtPath)) {
+      try {
+        loadedBg = await loadImage(bgArtPath);
+      } catch (e) {
+        // Fallback
+      }
+    }
+
     // Synthetic audio animation frame for realistic preview
     const audioData = {
       frameIndex: 15,
@@ -323,6 +334,8 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
         totalFrames: 90,
         audioData,
         coverImage: loadedCover,
+        bgImage: loadedBg || loadedCover,
+        blurRadius: Number(bgBlurRadius) || 28,
         trackTitle,
         artistName,
         albumName,
@@ -337,6 +350,8 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
         totalFrames: 90,
         audioData,
         coverImage: loadedCover,
+        bgImage: loadedBg || loadedCover,
+        bgBlurRadius: Number(bgBlurRadius) || 28,
         trackTitle,
         artistName,
         albumName,

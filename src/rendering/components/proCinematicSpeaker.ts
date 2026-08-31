@@ -25,6 +25,8 @@ export interface ProCinematicSpeakerParams {
   totalFrames: number;
   audioData: AudioAnimationFrame;
   coverImage?: Image | null;
+  bgImage?: Image | null;
+  bgBlurRadius?: number;
   trackTitle?: string;
   artistName?: string;
   albumName?: string;
@@ -41,6 +43,8 @@ export function drawProCinematicSpeakerComposition(params: ProCinematicSpeakerPa
     totalFrames,
     audioData,
     coverImage,
+    bgImage,
+    bgBlurRadius = 28,
     trackTitle,
     artistName,
     albumName,
@@ -70,16 +74,19 @@ export function drawProCinematicSpeakerComposition(params: ProCinematicSpeakerPa
   ctx.fillStyle = preset.colors.background || '#04060a';
   ctx.fillRect(0, 0, width, height);
 
-  if (coverImage) {
-    // Render blurred offscreen artwork background with Ken Burns drift
+  const backgroundSrcImage = bgImage || coverImage;
+
+  if (backgroundSrcImage) {
+    // Render blurred offscreen background with Ken Burns drift
     const offWidth = 320;
     const offHeight = Math.round(offWidth * (height / width));
+    const cacheKey = `${(backgroundSrcImage as any).src || 'img'}_blur${bgBlurRadius}`;
 
-    if (!cachedBlurCanvas || cachedBlurSrc !== (coverImage as any).src) {
+    if (!cachedBlurCanvas || cachedBlurSrc !== cacheKey) {
       cachedBlurCanvas = createCanvas(offWidth, offHeight);
       const offCtx = cachedBlurCanvas.getContext('2d');
 
-      const imgAspect = coverImage.width / coverImage.height;
+      const imgAspect = backgroundSrcImage.width / backgroundSrcImage.height;
       const targetAspect = offWidth / offHeight;
       let drawW = offWidth;
       let drawH = offHeight;
@@ -94,8 +101,19 @@ export function drawProCinematicSpeakerComposition(params: ProCinematicSpeakerPa
         drawY = (offHeight - drawH) / 2;
       }
 
-      offCtx.drawImage(coverImage, drawX, drawY, drawW, drawH);
-      cachedBlurSrc = (coverImage as any).src || '';
+      offCtx.drawImage(backgroundSrcImage, drawX, drawY, drawW, drawH);
+
+      if (bgBlurRadius > 0) {
+        try {
+          offCtx.filter = `blur(${Math.round(bgBlurRadius * 0.5)}px)`;
+          offCtx.drawImage(cachedBlurCanvas, 0, 0, offWidth, offHeight);
+          offCtx.filter = 'none';
+        } catch (e) {
+          // Fallback
+        }
+      }
+
+      cachedBlurSrc = cacheKey;
     }
 
     const kb = preset.kenBurns || { enabled: true, zoomStart: 1.0, zoomEnd: 1.06, speed: 0.6 };

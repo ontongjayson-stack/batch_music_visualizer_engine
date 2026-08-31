@@ -186,15 +186,38 @@
       <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px;">
         <h3 style="margin-top: 0; color: var(--accent); font-size: 1.15rem;">🖼️ Album Cover Artwork & Visual FX Customizer</h3>
         
-        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px; background: #151c2c; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+        <!-- 1. Primary Album Cover Upload -->
+        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 14px; background: #151c2c; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
           <div id="mainCoverDropZone" style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px dashed var(--accent); background: #0f172a; flex-shrink: 0; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer;" onclick="document.getElementById('mainAlbumCoverInput').click()">
             <img id="mainCoverPreviewImg" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
             <span id="mainCoverPlaceholder" style="font-size:0.75rem; color:var(--text-muted);">Upload Cover</span>
           </div>
           <div style="flex: 1;">
-            <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Primary Album Cover Artwork</label>
+            <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Primary Album Cover Artwork (1:1 Hero Container)</label>
             <input type="file" id="mainAlbumCoverInput" accept="image/*" style="display: none;" onchange="handleMainAlbumCoverUpload(this)">
             <button style="width: 100%; padding: 8px; background: #334155; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;" onclick="document.getElementById('mainAlbumCoverInput').click()">📁 Select / Upload Album Cover Artwork</button>
+          </div>
+        </div>
+
+        <!-- 2. Background Artwork Upload & Blur Control -->
+        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px; background: #151c2c; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+          <div id="mainBgDropZone" style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px dashed #38bdf8; background: #0f172a; flex-shrink: 0; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer;" onclick="document.getElementById('mainBgInput').click()">
+            <img id="mainBgPreviewImg" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
+            <span id="mainBgPlaceholder" style="font-size:0.75rem; color:var(--text-muted);">Upload Background</span>
+          </div>
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Background Image Artwork</label>
+              <span style="font-size: 0.8rem; color: var(--accent); font-weight: 600;">Blur: <span id="bgBlurVal">28px</span></span>
+            </div>
+            <input type="file" id="mainBgInput" accept="image/*" style="display: none;" onchange="handleBackgroundUpload(this)">
+            <button style="width: 100%; padding: 8px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;" onclick="document.getElementById('mainBgInput').click()">🌄 Select / Upload Custom Background Image</button>
+            
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Sharp (0px)</span>
+              <input type="range" id="bgBlurInput" min="0" max="60" value="28" style="flex: 1; cursor: pointer;" oninput="document.getElementById('bgBlurVal').innerText = this.value + 'px'; updateLiveVisualizerPreview();">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Heavy (60px)</span>
+            </div>
           </div>
         </div>
 
@@ -439,6 +462,7 @@
   <script>
     let currentPreviewAspect = '16:9';
     let mainUploadedCoverPath = '';
+    let mainUploadedBgPath = '';
 
     function handleMainAlbumCoverUpload(input) {
       if (input.files && input.files[0]) {
@@ -449,6 +473,24 @@
           const placeholder = document.getElementById('mainCoverPlaceholder');
           if (img) {
             img.src = mainUploadedCoverPath;
+            img.style.display = 'block';
+          }
+          if (placeholder) placeholder.style.display = 'none';
+          updateLiveVisualizerPreview();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function handleBackgroundUpload(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          mainUploadedBgPath = e.target.result;
+          const img = document.getElementById('mainBgPreviewImg');
+          const placeholder = document.getElementById('mainBgPlaceholder');
+          if (img) {
+            img.src = mainUploadedBgPath;
             img.style.display = 'block';
           }
           if (placeholder) placeholder.style.display = 'none';
@@ -493,6 +535,7 @@
       const heroShape = document.getElementById('heroShapeSelect')?.value || 'SQUARE_ROUNDED';
       const primaryColor = document.getElementById('primaryColorInput')?.value || '#00f0ff';
       const secondaryColor = document.getElementById('secondaryColorInput')?.value || '#fbbf24';
+      const bgBlurRadius = document.getElementById('bgBlurInput')?.value || 28;
 
       try {
         const res = await fetch('/api/preview-frame', {
@@ -507,7 +550,9 @@
             trackTitle: 'Midnight Piano Trap',
             artistName: 'Antigravity Studio',
             albumName: 'Cinematic Album V1',
-            coverArtPath: mainUploadedCoverPath
+            coverArtPath: mainUploadedCoverPath,
+            bgArtPath: mainUploadedBgPath,
+            bgBlurRadius: Number(bgBlurRadius)
           })
         });
 

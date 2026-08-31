@@ -22,6 +22,8 @@ export interface CinematicAlbumDrawOptions {
   totalFrames: number;
   audioData: AudioAnimationFrame;
   coverImage: Image | null;
+  bgImage?: Image | null;
+  blurRadius?: number;
   trackTitle: string;
   artistName: string;
   albumName?: string;
@@ -31,8 +33,8 @@ export interface CinematicAlbumDrawOptions {
 // Offscreen blur cache map to eliminate per-frame CPU/GPU blur calculations
 const blurredCanvasCache = new Map<string, any>();
 
-function getBlurredBackgroundCanvas(coverImage: Image, targetWidth: number, targetHeight: number): any {
-  const cacheKey = `${coverImage.width}x${coverImage.height}_to_${targetWidth}x${targetHeight}`;
+function getBlurredBackgroundCanvas(coverImage: Image, targetWidth: number, targetHeight: number, blurRadius: number = 28): any {
+  const cacheKey = `${(coverImage as any).src || 'img'}_${coverImage.width}x${coverImage.height}_blur${blurRadius}_to_${targetWidth}x${targetHeight}`;
   if (blurredCanvasCache.has(cacheKey)) {
     return blurredCanvasCache.get(cacheKey);
   }
@@ -62,13 +64,15 @@ function getBlurredBackgroundCanvas(coverImage: Image, targetWidth: number, targ
 
   offCtx.drawImage(coverImage, drawX, drawY, drawW, drawH);
 
-  // Apply heavy Skia blur filter
-  try {
-    offCtx.filter = 'blur(28px)';
-    offCtx.drawImage(offCanvas, 0, 0, offWidth, offHeight);
-    offCtx.filter = 'none';
-  } catch (err) {
-    // Fallback if filter is unsupported
+  // Apply Skia blur filter
+  if (blurRadius > 0) {
+    try {
+      offCtx.filter = `blur(${Math.round(blurRadius * scale)}px)`;
+      offCtx.drawImage(offCanvas, 0, 0, offWidth, offHeight);
+      offCtx.filter = 'none';
+    } catch (err) {
+      // Fallback if filter is unsupported
+    }
   }
 
   blurredCanvasCache.set(cacheKey, offCanvas);
@@ -84,6 +88,8 @@ export function drawCinematicAlbumComposition(options: CinematicAlbumDrawOptions
     totalFrames,
     audioData,
     coverImage,
+    bgImage,
+    blurRadius = 28,
     trackTitle,
     artistName,
     albumName,
@@ -111,8 +117,10 @@ export function drawCinematicAlbumComposition(options: CinematicAlbumDrawOptions
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
 
-  if (coverImage) {
-    const blurredCanvas = getBlurredBackgroundCanvas(coverImage, width, height);
+  const backgroundSrcImage = bgImage || coverImage;
+
+  if (backgroundSrcImage) {
+    const blurredCanvas = getBlurredBackgroundCanvas(backgroundSrcImage, width, height, blurRadius);
     
     // Slow Ken Burns drift (zoom 1.05 -> 1.12)
     const kenZoom = 1.05 + Math.sin((frameIndex / totalFrames) * Math.PI) * 0.07;
