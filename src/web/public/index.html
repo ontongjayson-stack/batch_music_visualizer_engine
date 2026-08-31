@@ -179,7 +179,11 @@
     <div class="card">
       <div class="form-group">
         <label for="albumFolder">1. Select Music Album Folder Path</label>
-        <input type="text" id="albumFolder" placeholder="e.g. D:/MyMusic/TrapPianoAlbum">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="text" id="albumFolder" placeholder="e.g. D:/MyMusic/TrapPianoAlbum" style="flex: 1;" onchange="scanSelectedAlbumFolder(this.value)">
+          <button id="browseFolderBtn" style="padding: 10px 16px; background: var(--accent); color: #000; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; flex-shrink: 0;" onclick="browseAlbumFolder()">📁 Browse Folder</button>
+          <input type="file" id="folderPickerInput" webkitdirectory directory style="display: none;" onchange="handleWebkitFolderSelect(this)">
+        </div>
       </div>
 
       <!-- ALBUM ARTWORK INGESTION & CUSTOM EFFECTS CUSTOMIZER -->
@@ -521,6 +525,66 @@
     let currentPreviewAspect = '16:9';
     let mainUploadedCoverPath = '';
     let mainUploadedBgPath = '';
+
+    async function browseAlbumFolder() {
+      try {
+        const res = await fetch('/api/browse-folder');
+        const data = await res.json();
+        if (data.success && data.folderPath) {
+          const input = document.getElementById('albumFolder');
+          if (input) input.value = data.folderPath;
+          scanSelectedAlbumFolder(data.folderPath);
+        } else if (data.canceled) {
+          // User canceled picker modal
+        } else {
+          // Fallback to HTML5 directory picker input
+          document.getElementById('folderPickerInput')?.click();
+        }
+      } catch (err) {
+        // Fallback to HTML5 directory picker
+        document.getElementById('folderPickerInput')?.click();
+      }
+    }
+
+    function handleWebkitFolderSelect(input) {
+      if (input.files && input.files.length > 0) {
+        const firstFile = input.files[0];
+        // In local desktop browser/Electron, file.path is available
+        const localPath = firstFile.path ? firstFile.path.substring(0, firstFile.path.lastIndexOf(firstFile.name) - 1) : '';
+        if (localPath) {
+          const folderInput = document.getElementById('albumFolder');
+          if (folderInput) folderInput.value = localPath;
+          scanSelectedAlbumFolder(localPath);
+        }
+      }
+    }
+
+    async function scanSelectedAlbumFolder(folderPath) {
+      if (!folderPath || !folderPath.trim()) return;
+      try {
+        const res = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folderPath: folderPath.trim() })
+        });
+        const data = await res.json();
+        if (data.success && data.album) {
+          console.log(`[Folder Scan]: Successfully loaded ${data.album.tracks.length} tracks from ${folderPath}`);
+          // Auto fill album title if empty
+          const albumInput = document.getElementById('preAlbumInput');
+          if (albumInput && !albumInput.value && data.album.albumTitle) {
+            albumInput.value = data.album.albumTitle;
+          }
+          const artistInput = document.getElementById('preArtistInput');
+          if (artistInput && !artistInput.value && data.album.artist) {
+            artistInput.value = data.album.artist;
+          }
+          updateLiveVisualizerPreview();
+        }
+      } catch (err) {
+        console.error('Failed to scan album folder:', err);
+      }
+    }
 
     function handleMainAlbumCoverUpload(input) {
       if (input.files && input.files[0]) {

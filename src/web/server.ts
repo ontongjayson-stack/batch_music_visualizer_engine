@@ -26,6 +26,27 @@ export const socialPublisher = new SocialPublisher({
   tokensFilePath: path.resolve('./output/.social-tokens.json')
 });
 
+// API: Open Native OS Folder Browser Dialog
+app.get('/api/browse-folder', (req: express.Request, res: express.Response) => {
+  const isWin = process.platform === 'win32';
+  if (!isWin) {
+    return res.status(400).json({ error: 'Native folder dialog only supported on Windows' });
+  }
+
+  const psCmd = `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $f = New-Object System.Windows.Forms.FolderBrowserDialog; if ($f.ShowDialog() -eq 'OK') { Write-Output $f.SelectedPath }"`;
+
+  exec(psCmd, (err, stdout) => {
+    if (err) {
+      return res.status(500).json({ error: 'Folder selection canceled or failed' });
+    }
+    const selectedPath = stdout.trim();
+    if (!selectedPath) {
+      return res.json({ success: false, canceled: true });
+    }
+    return res.json({ success: true, folderPath: selectedPath });
+  });
+});
+
 // API: Scan Album Folder
 app.post('/api/scan', async (req, res) => {
   try {
