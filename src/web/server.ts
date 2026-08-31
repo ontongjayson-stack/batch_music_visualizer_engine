@@ -319,8 +319,18 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
     const { drawCinematicAlbumComposition } = await import('../rendering/components/cinematicAlbum.js');
 
     const basePreset = getPreset(preset as any) || getPreset('PRO-CINEMATIC-SPEAKER');
+    
+    let mappedVisualizerMode = basePreset.visualizerMode;
+    if (spectrumStyle === 'BARS') mappedVisualizerMode = 'BARS';
+    else if (spectrumStyle === 'WAVE_LINE') mappedVisualizerMode = 'WAVE_LINES';
+    else if (spectrumStyle === 'DUAL_WAVEFORM') mappedVisualizerMode = 'DUAL_BARS';
+    else if (spectrumStyle === 'RADIAL_ORBIT') mappedVisualizerMode = 'CIRCULAR';
+
+    const showCenterArt = heroShape !== 'CIRCULAR_EMBLEM';
+
     const mergedPreset = {
       ...basePreset,
+      visualizerMode: mappedVisualizerMode,
       colors: {
         ...basePreset.colors,
         ...(customColors || {})
@@ -335,20 +345,24 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
     const ctx = canvas.getContext('2d');
 
     let loadedCover = null;
-    if (coverArtPath && fs.existsSync(coverArtPath)) {
+    if (coverArtPath && typeof coverArtPath === 'string' && coverArtPath.trim()) {
       try {
-        loadedCover = await loadImage(coverArtPath);
+        if (coverArtPath.startsWith('data:image/') || fs.existsSync(coverArtPath)) {
+          loadedCover = await loadImage(coverArtPath);
+        }
       } catch (e) {
-        // Fallback
+        console.error('[Preview Error] Failed to load cover image:', e);
       }
     }
 
     let loadedBg = null;
-    if (bgArtPath && fs.existsSync(bgArtPath)) {
+    if (bgArtPath && typeof bgArtPath === 'string' && bgArtPath.trim()) {
       try {
-        loadedBg = await loadImage(bgArtPath);
+        if (bgArtPath.startsWith('data:image/') || fs.existsSync(bgArtPath)) {
+          loadedBg = await loadImage(bgArtPath);
+        }
       } catch (e) {
-        // Fallback
+        console.error('[Preview Error] Failed to load background image:', e);
       }
     }
 
@@ -397,7 +411,7 @@ app.post('/api/preview-frame', async (req: express.Request, res: express.Respons
         artistName,
         albumName,
         safeArea,
-        showCenterArt: true
+        showCenterArt
       });
     }
 
