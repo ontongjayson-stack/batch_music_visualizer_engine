@@ -50,7 +50,7 @@ app.post('/api/scan', async (req, res) => {
 // API: Start Batch Render Queue
 app.post('/api/generate', async (req, res) => {
   try {
-    const { albumPath, preset, platforms, outputDir, fps, concurrency } = req.body;
+    const { albumPath, preset, platforms, outputDir, fps, concurrency, stripAiTags, customMetadata } = req.body;
     if (!albumPath) {
       return res.status(400).json({ error: 'albumPath is required' });
     }
@@ -59,6 +59,26 @@ app.post('/api/generate', async (req, res) => {
     const resolvedOutputDir = path.resolve(outputDir || './output');
 
     const bundle = await scanAlbum(resolvedAlbumPath);
+
+    // Apply Pre-Render AI Tag Scrubbing and Custom Metadata if requested
+    if (stripAiTags || customMetadata) {
+      const { scrubAITags, writeID3Tags } = await import('../metadata/id3-engine.js');
+      for (const track of bundle.tracks) {
+        if (track.filePath && fs.existsSync(track.filePath)) {
+          try {
+            if (stripAiTags) {
+              await scrubAITags(track.filePath, customMetadata);
+            } else if (customMetadata) {
+              await writeID3Tags(track.filePath, customMetadata);
+            }
+            if (customMetadata?.artist) track.artist = customMetadata.artist;
+            if (customMetadata?.album) track.album = customMetadata.album;
+          } catch (e) {
+            console.warn(`[Pre-Scrub Warning] Could not tag audio file ${track.filePath}:`, e);
+          }
+        }
+      }
+    }
 
     const renderOptions: RenderOptions = {
       preset: preset || 'TRAP-PIANO',

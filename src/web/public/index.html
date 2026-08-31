@@ -273,6 +273,64 @@
         </div>
       </div>
 
+      <!-- PRE-RENDER METADATA EDITOR & COPYRIGHT UTILITY BOX -->
+      <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="margin: 0; color: var(--accent); font-size: 1.15rem;">🏷️ Pre-Render Track Metadata & AI Scrubbing</h3>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #10b981; font-weight: 600; cursor: pointer;">
+            <input type="checkbox" id="stripAiTagsCheckbox" checked style="accent-color: #10b981;"> 🧹 Scrub Suno/Udio AI Watermarks
+          </label>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0; margin-bottom: 14px;">
+          Clean embedded AI generation tags (e.g. "Made with Suno / Udio") and apply your own custom branding onto all tracks prior to video generation.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Global Artist Name</label>
+            <input type="text" id="preArtistInput" placeholder="e.g. Antigravity Records" style="padding: 8px; font-size: 0.85rem;" oninput="updateLiveVisualizerPreview()">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Album / Project Title</label>
+            <input type="text" id="preAlbumInput" placeholder="e.g. Cinematic Album Vol. 1" style="padding: 8px; font-size: 0.85rem;" oninput="updateLiveVisualizerPreview()">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Record Label / Publisher</label>
+            <input type="text" id="prePublisherInput" placeholder="e.g. Antigravity Audio Studio" style="padding: 8px; font-size: 0.85rem;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Release Year & Genre</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="number" id="preYearInput" value="2026" style="width: 80px; padding: 8px; font-size: 0.85rem;">
+              <input type="text" id="preGenreInput" placeholder="Trap / Amapiano" style="flex: 1; padding: 8px; font-size: 0.85rem;">
+            </div>
+          </div>
+        </div>
+
+        <!-- COPYRIGHT SYMBOL & TEXT UTILITY BOX -->
+        <div style="background: #151c2c; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin: 0;">©️ Copyright Notice & Symbols Utility</label>
+            <div style="display: flex; gap: 6px;">
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: #334155; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="copySymbol('©')">Copy ©</button>
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: #334155; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="copySymbol('℗')">Copy ℗</button>
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: #334155; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="copySymbol('™')">Copy ™</button>
+              <button style="padding: 2px 8px; font-size: 0.75rem; background: #334155; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="copySymbol('®')">Copy ®</button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="text" id="preCopyrightInput" placeholder="© 2026 Antigravity Records. All Rights Reserved." style="flex: 1; padding: 8px; font-size: 0.85rem;">
+            <button style="padding: 8px 12px; background: #1e293b; color: #fff; border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;" onclick="copyCopyrightNotice()">📋 Copy Notice</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; font-size: 0.75rem;">
+            <button style="padding: 4px 8px; background: #0f172a; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;" onclick="applyCopyrightTemplate('copyright')">+ Standard Copyright (©)</button>
+            <button style="padding: 4px 8px; background: #0f172a; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;" onclick="applyCopyrightTemplate('phonogram')">+ Sound Recording (℗)</button>
+          </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>3. Select Output Social Platforms</label>
         <div class="checkbox-group">
@@ -524,6 +582,38 @@
       updateLiveVisualizerPreview();
     }
 
+    function copySymbol(sym) {
+      navigator.clipboard.writeText(sym).then(() => {
+        const input = document.getElementById('preCopyrightInput');
+        if (input) {
+          const start = input.selectionStart || input.value.length;
+          const end = input.selectionEnd || input.value.length;
+          input.value = input.value.substring(0, start) + sym + input.value.substring(end);
+        }
+      }).catch(err => console.error('Copy symbol error:', err));
+    }
+
+    function copyCopyrightNotice() {
+      const notice = document.getElementById('preCopyrightInput')?.value.trim() || '© 2026 Antigravity Records. All Rights Reserved.';
+      navigator.clipboard.writeText(notice).then(() => {
+        alert('Copied copyright notice to clipboard!');
+      }).catch(err => console.error('Copy notice error:', err));
+    }
+
+    function applyCopyrightTemplate(type) {
+      const input = document.getElementById('preCopyrightInput');
+      const artist = document.getElementById('preArtistInput')?.value.trim() || 'Antigravity Records';
+      const year = document.getElementById('preYearInput')?.value || '2026';
+
+      if (input) {
+        if (type === 'phonogram') {
+          input.value = `℗ ${year} ${artist}. All Rights Reserved.`;
+        } else {
+          input.value = `© ${year} ${artist}. All Rights Reserved.`;
+        }
+      }
+    }
+
     async function updateLiveVisualizerPreview() {
       const spinner = document.getElementById('livePreviewSpinner');
       const img = document.getElementById('livePreviewImg');
@@ -537,6 +627,9 @@
       const secondaryColor = document.getElementById('secondaryColorInput')?.value || '#fbbf24';
       const bgBlurRadius = document.getElementById('bgBlurInput')?.value || 28;
 
+      const preArtist = document.getElementById('preArtistInput')?.value.trim();
+      const preAlbum = document.getElementById('preAlbumInput')?.value.trim();
+
       try {
         const res = await fetch('/api/preview-frame', {
           method: 'POST',
@@ -548,8 +641,8 @@
             heroShape,
             customColors: { primary: primaryColor, secondary: secondaryColor, accent: secondaryColor },
             trackTitle: 'Midnight Piano Trap',
-            artistName: 'Antigravity Studio',
-            albumName: 'Cinematic Album V1',
+            artistName: preArtist || 'Antigravity Studio',
+            albumName: preAlbum || 'Cinematic Album V1',
             coverArtPath: mainUploadedCoverPath,
             bgArtPath: mainUploadedBgPath,
             bgBlurRadius: Number(bgBlurRadius)
@@ -585,6 +678,14 @@
       const preset = document.getElementById('presetSelect').value;
       const checkedPlatforms = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
 
+      const stripAiTags = document.getElementById('stripAiTagsCheckbox')?.checked ?? true;
+      const preArtist = document.getElementById('preArtistInput')?.value.trim();
+      const preAlbum = document.getElementById('preAlbumInput')?.value.trim();
+      const prePublisher = document.getElementById('prePublisherInput')?.value.trim();
+      const preYear = document.getElementById('preYearInput')?.value;
+      const preGenre = document.getElementById('preGenreInput')?.value.trim();
+      const preCopyright = document.getElementById('preCopyrightInput')?.value.trim();
+
       const btn = document.getElementById('generateBtn');
       btn.innerText = 'INITIALIZING QUEUE...';
       btn.disabled = true;
@@ -597,7 +698,16 @@
             albumPath,
             preset,
             platforms: checkedPlatforms,
-            outputDir: './output'
+            outputDir: './output',
+            stripAiTags,
+            customMetadata: {
+              artist: preArtist || undefined,
+              album: preAlbum || undefined,
+              publisher: prePublisher || undefined,
+              year: preYear ? Number(preYear) : undefined,
+              genre: preGenre || undefined,
+              comment: preCopyright || undefined
+            }
           })
         });
 
