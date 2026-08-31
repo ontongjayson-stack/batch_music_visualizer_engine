@@ -255,6 +255,104 @@ app.get('/api/image', (req: express.Request, res: express.Response) => {
   res.sendFile(path.resolve(filePath));
 });
 
+// API: Render Live Preview Canvas Frame On-the-Fly
+app.post('/api/preview-frame', async (req: express.Request, res: express.Response) => {
+  try {
+    const {
+      preset = 'PRO-CINEMATIC-SPEAKER',
+      aspectRatio = '16:9',
+      spectrumStyle = 'RADIAL_ORBIT',
+      heroShape = 'SQUARE_ROUNDED',
+      customColors,
+      trackTitle = 'Midnight Piano Trap',
+      artistName = 'Antigravity Studio',
+      albumName = 'Cinematic Album V1',
+      coverArtPath
+    } = req.body;
+
+    const { createCanvas, loadImage } = await import('@napi-rs/canvas');
+    const { getPreset, getDimensions, getSafeAreaInsets } = await import('../rendering/presets.js');
+    const { drawProCinematicSpeakerComposition } = await import('../rendering/components/proCinematicSpeaker.js');
+    const { drawCinematicAlbumComposition } = await import('../rendering/components/cinematicAlbum.js');
+
+    const basePreset = getPreset(preset as any) || getPreset('PRO-CINEMATIC-SPEAKER');
+    const mergedPreset = {
+      ...basePreset,
+      colors: {
+        ...basePreset.colors,
+        ...(customColors || {})
+      }
+    };
+
+    const isPortrait = aspectRatio === '9:16' || aspectRatio === 'PORTRAIT';
+    const dimensions = isPortrait ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 };
+    const safeArea = getSafeAreaInsets(isPortrait ? '9:16' : '16:9');
+
+    const canvas = createCanvas(dimensions.width, dimensions.height);
+    const ctx = canvas.getContext('2d');
+
+    let loadedCover = null;
+    if (coverArtPath && fs.existsSync(coverArtPath)) {
+      try {
+        loadedCover = await loadImage(coverArtPath);
+      } catch (e) {
+        // Fallback
+      }
+    }
+
+    // Synthetic audio animation frame for realistic preview
+    const audioData = {
+      frameIndex: 15,
+      timestamp: 0.5,
+      volume: 0.65,
+      bass: 0.8,
+      subBass: 0.85,
+      kickTransient: 0.75,
+      mids: 0.45,
+      treble: 0.35,
+      spectrum: new Array(64).fill(0).map((_, i) => Math.sin(i * 0.2 + 1) * 0.4 + 0.35),
+      isBeat: true
+    };
+
+    if (preset === 'CINEMATIC-ALBUM') {
+      drawCinematicAlbumComposition({
+        ctx,
+        dimensions,
+        preset: mergedPreset,
+        frameIndex: 15,
+        totalFrames: 90,
+        audioData,
+        coverImage: loadedCover,
+        trackTitle,
+        artistName,
+        albumName,
+        safeArea
+      });
+    } else {
+      drawProCinematicSpeakerComposition({
+        ctx,
+        dimensions,
+        preset: mergedPreset,
+        frameIndex: 15,
+        totalFrames: 90,
+        audioData,
+        coverImage: loadedCover,
+        trackTitle,
+        artistName,
+        albumName,
+        safeArea,
+        showCenterArt: true
+      });
+    }
+
+    const pngBuffer = canvas.toBuffer('image/png');
+    res.setHeader('Content-Type', 'image/png');
+    return res.send(pngBuffer);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to render preview frame' });
+  }
+});
+
 // API: Stream Rendered MP4 Videos with Range Header Support
 app.get('/api/video/stream', (req: express.Request, res: express.Response) => {
   const filePath = req.query.path as string;

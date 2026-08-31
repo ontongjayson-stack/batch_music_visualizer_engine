@@ -182,20 +182,72 @@
         <input type="text" id="albumFolder" placeholder="e.g. D:/MyMusic/TrapPianoAlbum">
       </div>
 
-      <div class="form-group">
-        <label for="presetSelect">2. Select Visual Preset Style</label>
-        <select id="presetSelect">
-          <option value="PRO-CINEMATIC-SPEAKER" selected>PRO-CINEMATIC-SPEAKER (Pro Dual Subwoofers + Center Artwork + Reactive Aura)</option>
-          <option value="CINEMATIC-ALBUM">CINEMATIC-ALBUM (Atmospheric Blurred Background + Breathing Artwork)</option>
-          <option value="TRAP-PIANO">TRAP-PIANO (Amapiano + Trap Fusion, Night Fire, Dance Silhouette)</option>
-          <option value="DEFAULT">DEFAULT (Cyan Studio Equalizer)</option>
-          <option value="DARK-CINEMATIC">DARK-CINEMATIC (Ember Particles & Wave Lines)</option>
-          <option value="AMAPIANO">AMAPIANO (Warm Sun & Geometric Accents)</option>
-          <option value="TRAP">TRAP (Neon Cyber & Heavy Bass Pulse)</option>
-          <option value="DEEP-HOUSE">DEEP-HOUSE (Oceanic Deep Pulsing Visuals)</option>
-          <option value="MINIMAL">MINIMAL (Clean Studio Audio Waveform)</option>
-          <option value="ABSTRACT">ABSTRACT (Dynamic Spectrum Art)</option>
-        </select>
+      <!-- ALBUM ARTWORK INGESTION & CUSTOM EFFECTS CUSTOMIZER -->
+      <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px;">
+        <h3 style="margin-top: 0; color: var(--accent); font-size: 1.15rem;">🖼️ Album Cover Artwork & Visual FX Customizer</h3>
+        
+        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px; background: #151c2c; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+          <div id="mainCoverDropZone" style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px dashed var(--accent); background: #0f172a; flex-shrink: 0; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer;" onclick="document.getElementById('mainAlbumCoverInput').click()">
+            <img id="mainCoverPreviewImg" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
+            <span id="mainCoverPlaceholder" style="font-size:0.75rem; color:var(--text-muted);">Upload Cover</span>
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Primary Album Cover Artwork</label>
+            <input type="file" id="mainAlbumCoverInput" accept="image/*" style="display: none;" onchange="handleMainAlbumCoverUpload(this)">
+            <button style="width: 100%; padding: 8px; background: #334155; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;" onclick="document.getElementById('mainAlbumCoverInput').click()">📁 Select / Upload Album Cover Artwork</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group" style="margin: 0;">
+            <label style="font-size: 0.85rem;">Spectrum Style</label>
+            <select id="spectrumStyleSelect" style="font-size: 0.9rem; padding: 8px;" onchange="updateLiveVisualizerPreview()">
+              <option value="RADIAL_ORBIT" selected>Radial Spectrum Orbit</option>
+              <option value="BARS">Equalizer Bars</option>
+              <option value="WAVE_LINE">Oscilloscope Wave Line</option>
+              <option value="DUAL_WAVEFORM">Dual Stereo Waveform</option>
+              <option value="PARTICLES">Audio Spark Particles</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin: 0;">
+            <label style="font-size: 0.85rem;">Hero Shape Framing</label>
+            <select id="heroShapeSelect" style="font-size: 0.9rem; padding: 8px;" onchange="updateLiveVisualizerPreview()">
+              <option value="SQUARE_ROUNDED" selected>1:1 Rounded Square</option>
+              <option value="SUBWOOFER_CONE">Dual Subwoofer System</option>
+              <option value="CIRCULAR_EMBLEM">Circular Acoustic Emblem</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 16px; margin-top: 14px; align-items: center;">
+          <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.85rem; margin: 0;">Primary Color:</label>
+            <input type="color" id="primaryColorInput" value="#00f0ff" style="width: 40px; height: 32px; border: none; background: transparent; cursor: pointer;" onchange="updateLiveVisualizerPreview()">
+          </div>
+          <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.85rem; margin: 0;">Accent Color:</label>
+            <input type="color" id="secondaryColorInput" value="#fbbf24" style="width: 40px; height: 32px; border: none; background: transparent; cursor: pointer;" onchange="updateLiveVisualizerPreview()">
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE REAL-TIME VISUALIZER PREVIEW WINDOW -->
+      <div style="background: #090d16; padding: 18px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="margin: 0; color: var(--accent); font-size: 1.15rem;">👁️ Live Visualizer Composition Preview</h3>
+          <div style="display: flex; gap: 8px;">
+            <button id="previewAspectLandscapeBtn" style="padding: 4px 12px; font-size: 0.8rem; background: var(--accent); color: #000; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;" onclick="setPreviewAspectRatio('16:9')">16:9 Landscape</button>
+            <button id="previewAspectPortraitBtn" style="padding: 4px 12px; font-size: 0.8rem; background: #334155; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;" onclick="setPreviewAspectRatio('9:16')">9:16 Vertical</button>
+          </div>
+        </div>
+
+        <div id="livePreviewContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;">
+          <img id="livePreviewImg" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
+          <div id="livePreviewSpinner" style="color: var(--accent); font-weight: 600; font-size: 0.9rem;">
+            🔄 Generating Live Preview...
+          </div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -385,7 +437,98 @@
   </div>
 
   <script>
-    let pollInterval = null;
+    let currentPreviewAspect = '16:9';
+    let mainUploadedCoverPath = '';
+
+    function handleMainAlbumCoverUpload(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          mainUploadedCoverPath = e.target.result;
+          const img = document.getElementById('mainCoverPreviewImg');
+          const placeholder = document.getElementById('mainCoverPlaceholder');
+          if (img) {
+            img.src = mainUploadedCoverPath;
+            img.style.display = 'block';
+          }
+          if (placeholder) placeholder.style.display = 'none';
+          updateLiveVisualizerPreview();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function setPreviewAspectRatio(aspect) {
+      currentPreviewAspect = aspect;
+      const container = document.getElementById('livePreviewContainer');
+      const landBtn = document.getElementById('previewAspectLandscapeBtn');
+      const portBtn = document.getElementById('previewAspectPortraitBtn');
+
+      if (aspect === '9:16') {
+        container.style.aspectRatio = '9/16';
+        container.style.maxHeight = '480px';
+        portBtn.style.background = 'var(--accent)';
+        portBtn.style.color = '#000';
+        landBtn.style.background = '#334155';
+        landBtn.style.color = '#fff';
+      } else {
+        container.style.aspectRatio = '16/9';
+        container.style.maxHeight = 'none';
+        landBtn.style.background = 'var(--accent)';
+        landBtn.style.color = '#000';
+        portBtn.style.background = '#334155';
+        portBtn.style.color = '#fff';
+      }
+      updateLiveVisualizerPreview();
+    }
+
+    async function updateLiveVisualizerPreview() {
+      const spinner = document.getElementById('livePreviewSpinner');
+      const img = document.getElementById('livePreviewImg');
+      if (spinner) spinner.style.display = 'block';
+
+      const presetSelect = document.getElementById('presetSelect');
+      const preset = presetSelect ? presetSelect.value : 'PRO-CINEMATIC-SPEAKER';
+      const spectrumStyle = document.getElementById('spectrumStyleSelect')?.value || 'RADIAL_ORBIT';
+      const heroShape = document.getElementById('heroShapeSelect')?.value || 'SQUARE_ROUNDED';
+      const primaryColor = document.getElementById('primaryColorInput')?.value || '#00f0ff';
+      const secondaryColor = document.getElementById('secondaryColorInput')?.value || '#fbbf24';
+
+      try {
+        const res = await fetch('/api/preview-frame', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            preset,
+            aspectRatio: currentPreviewAspect,
+            spectrumStyle,
+            heroShape,
+            customColors: { primary: primaryColor, secondary: secondaryColor, accent: secondaryColor },
+            trackTitle: 'Midnight Piano Trap',
+            artistName: 'Antigravity Studio',
+            albumName: 'Cinematic Album V1',
+            coverArtPath: mainUploadedCoverPath
+          })
+        });
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          if (img) {
+            img.src = objectUrl;
+            img.style.display = 'block';
+          }
+          if (spinner) spinner.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Live preview generation error:', err);
+      }
+    }
+
+    // Trigger initial live preview render when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      updateLiveVisualizerPreview();
+    });
 
     async function startGeneration() {
       const albumPath = document.getElementById('albumFolder').value.trim();

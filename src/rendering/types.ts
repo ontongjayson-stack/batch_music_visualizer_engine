@@ -80,6 +80,14 @@ export interface VisualConfig {
   backgroundPath?: string;
   customColors?: Partial<VisualColorPalette>;
   showCenterArt?: boolean;
+  spectrumStyle?: 'BARS' | 'RADIAL_ORBIT' | 'WAVE_LINE' | 'DUAL_WAVEFORM' | 'PARTICLES' | 'MIRROR';
+  heroShape?: 'SQUARE_ROUNDED' | 'VINYL_SPIN' | 'CIRCULAR_EMBLEM' | 'SUBWOOFER_CONE';
+  fxToggles?: {
+    kenBurns?: boolean;
+    vignetteStrength?: number;
+    transientFlares?: boolean;
+    particleDensity?: number;
+  };
 }
 
 export interface AudioAnimationFrame {
@@ -118,6 +126,9 @@ export interface RenderOptions {
   albumName?: string;
   watermarkText?: string;
   showCenterArt?: boolean;
+  spectrumStyle?: 'BARS' | 'RADIAL_ORBIT' | 'WAVE_LINE' | 'DUAL_WAVEFORM' | 'PARTICLES' | 'MIRROR';
+  heroShape?: 'SQUARE_ROUNDED' | 'VINYL_SPIN' | 'CIRCULAR_EMBLEM' | 'SUBWOOFER_CONE';
+  customColors?: Partial<VisualColorPalette>;
   fps?: number;
   onProgress?: (progress: number, currentFrame: number, totalFrames: number) => void;
 }
